@@ -9,7 +9,7 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-    <title>Lykos Community Website</title>
+    <title>IP3X Community</title>
   </head>
   <style>
     html {
@@ -25,11 +25,21 @@
       height: 100%;
       min-height: 100vh;
       width: auto;
+      overflow-x: hidden;
+    }
+    #background-image {
+      position: fixed;
+      display: block;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      margin: 0;
+      padding: 0;
       background-image: url(/images/background_main.jpg);
       background-position: center;
       background-repeat: no-repeat;
       background-size: cover;
-      overflow-x: hidden;
     }
     a {
       text-decoration: none;
@@ -37,6 +47,7 @@
     }
   </style>
   <body>
+    <div id="background-image"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>

@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^4.5.1",
+    "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.5.1",
-    "@material-ui/lab": "^4.0.0-alpha.41",
+    "@material-ui/lab": "^4.0.0-alpha.49",
+    "moment": "^2.24.0",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-scripts": "3.2.0",
@@ -34,10 +35,10 @@
   },
   "devDependencies": {
     "@material-ui/types": "^4.1.1",
-    "@types/jest": "24.0.19",
+    "@types/moment": "^2.13.0",
     "@types/react": "16.9.9",
     "@types/react-dom": "16.9.2",
-    "@types/react-router-dom": "^5.1.0",
+    "@types/react-router-dom": "^5.1.4",
     "@types/socket.io-client": "^1.4.32"
   },
   "proxy": "http://localhost:8080/"

@@ -1,13 +1,14 @@
 
-export function login(password: string): object {
+export function login(password: string): string {
   const devPassword = process.env.ADMIN_PASS;
-  var authStatus = {invalid: true, err: ""};
 
+  let err = "";
   if(devPassword) {
-    authStatus.invalid = password != devPassword;
-    if(authStatus.invalid) authStatus.err = "Incorrect password";
+    if(password != devPassword) err = "Incorrect password";
   } else {
-    authStatus.err = "Password not configured";
+    err =  "Password not configured";
   }
-  return authStatus;
+
+  return err;
+
 }

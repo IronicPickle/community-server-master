@@ -1,68 +1,95 @@
 import React, { Component } from "react";
-import { withStyles, Theme, Container, Grid, Tooltip } from "@material-ui/core";
+import { withStyles, Theme, Container, Grid, Paper, Typography } from "@material-ui/core";
 import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import { GlobalContext } from "../utils/contexts";
+import { queryStats } from "../utils/members";
+import StatsStages from "../components/sections/stats/StatsStages";
+import StatsOther from "../components/sections/stats/StatsOther";
 
 const styles = (theme: Theme) => ({
-  mainContainer: {
-    marginTop: theme.spacing(16),
-    padding: 0,
-    maxWidth: "80%"
-  }, socialIconContainer: {
-    width: "75%"
-  }, socialIcon: {
-    width: "100%"
+  titleContainer: {
+    marginTop: theme.spacing(12)
+  }, title: {
+    padding: theme.spacing(2)
+  }, statsContainer: {
+    marginTop: theme.spacing(2)
+  }, statContainer: {
+    width: "28%"
   }
 });
 
-interface IndexPropsI {
+interface PropsI {
   classes: Classes;
   theme: Theme;
 }
 
-interface IndexStateI {
-
+interface StateI {
+  stats: any;
 }
 
-class Index extends Component<IndexPropsI, IndexStateI> {
+class Index extends Component<PropsI, StateI> {
   static contextType = GlobalContext;
   
-  constructor(props: Readonly<IndexPropsI>) {
+  constructor(props: Readonly<PropsI>) {
     super(props);
     this.state = {
-
+      stats: {}
     }
+
+    this.updateStats = this.updateStats.bind(this);
+  }
+
+  componentDidMount() {
+    this.updateStats();
+  }
+
+  updateStats() {
+    this.context.toggleLoader(true);
+    queryStats((res: { success: boolean, msg: string, data: any }) => {
+      this.context.toggleLoader(false);
+      if(!res.success) return;
+      this.setState({ stats: res.data });
+    });
   }
   
   render() {
     const { classes } = this.props;
+    const { stats } = this.state;
+
+    console.log(stats)
+
     return (
-      <Container className={classes.mainContainer}>
-        <Grid container direction="row" alignItems="center" justify="center">
-          <Grid item>
-            <Grid container justify="center">
-              <Grid item className={classes.socialIconContainer}>
-                <a href="ts3server://ts.lykosgc.uk?name=%29%3A%20%28%3A">
-                  <Tooltip title="Join Teamspeak Server" placement="top">
-                    <img src="/images/teamspeak.png" alt="" className={classes.socialIcon}/>
-                  </Tooltip>
-                </a>
-              </Grid>
+      <div>
+        <Container className={classes.titleContainer}>
+          <Paper>
+            <Typography
+              variant="h6"
+              component="h6"
+              align="center"
+              className={classes.title}
+            >IP3X Squadron Portal</Typography>
+          </Paper>
+        </Container>
+        <Container className={classes.statsContainer}>
+          <Grid container justify="space-evenly">
+            <Grid item className={classes.statContainer}>
+              <StatsStages stats={stats} />
+            </Grid>
+            <Grid item className={classes.statContainer}>
+              <StatsOther stats={stats} />
+            </Grid>
+            <Grid item className={classes.statContainer}>
+              <Paper className={classes.statSubContainer}>
+                <Typography
+                  variant="subtitle1"
+                  component="h6"
+                  align="center"
+                >IP3X Squadron Portal</Typography>
+              </Paper>
             </Grid>
           </Grid>
-          <Grid item>
-            <Grid container justify="center">
-              <Grid item className={classes.socialIconContainer}>
-                <a href="https://discordapp.com/invite/xXrJ3mu" target="_blank" rel="noopener noreferrer">
-                  <Tooltip title="Join Discord Server" placement="top">
-                    <img src="/images/discord.png" alt="" className={classes.socialIcon}/>
-                  </Tooltip>
-                </a>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      </div>
     );
   }
 }

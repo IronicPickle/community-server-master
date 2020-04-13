@@ -1,0 +1,7 @@
+Members List > Constructed from discord member list > Entry created in database when user starts the application process > Overrides will be available
+Website Sign In > Done via Discord Authentication > Linked via user ID
+
+Application Stage:
+0 - Not started (User has only joined discord)
+1 - Application started
+2 - Application complete

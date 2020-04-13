@@ -5,7 +5,7 @@ import { Express } from "express-serve-static-core";
 import routes from "./routes";
 import socketIO from "socket.io";
 import http from "http";
-import { MusicSync } from "./socket.io/namespaces/MusicSync";
+import Main from "./socket.io/namespaces/Main";
 
 export class NodeServer {
   public port: string;
@@ -44,10 +44,9 @@ export class NodeServer {
           }
 
           // Socket namespaces
-          new MusicSync(this.httpInstance, this.ioInstance);
+          new Main(this.httpInstance, this.ioInstance);
   
           // Express routes
-          server.use("/musicsync", routes.musicSync(this.httpInstance, this.ioInstance));
           server.use("/api", routes.api);
 
           server.all("*", (req: any, res: any, next: any) => {

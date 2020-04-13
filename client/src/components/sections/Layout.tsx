@@ -37,7 +37,7 @@ class Layout extends Component<PropsI> {
   }
 
   logIn() {
-    this.context.toggleLoginContainer(true);
+    this.context.toggleContainer("login", true);
   }
 
   checkRouteExists(route: string): boolean {
@@ -60,7 +60,7 @@ class Layout extends Component<PropsI> {
                   variant="h5"
                   component="h5"
                   className={classes.title}
-                >Lykos</Typography>
+                >IP3X</Typography>
               </Link>
               <div>
                 <Tabs value={this.checkRouteExists(this.props.currentRoute) ? this.props.currentRoute : false}>
@@ -106,7 +106,9 @@ class Layout extends Component<PropsI> {
 
 const tabRoutes = [
   {path: "/", name: "Home"},
-  {path: "/musicsync", name: "Music Sync"}
+  {path: "/management", name: "Management"},
+  {path: "/bgs", name: "Background-Sim"}
+
 ]
 
 export default withStyles(styles, { withTheme: true })(Layout);

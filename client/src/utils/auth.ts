@@ -7,12 +7,10 @@ export function login(inputs: any, callback: Function): void {
     }, body: JSON.stringify({
       inputs: inputs
     })
-  })
-    .then(res => res.json())
+  }).then(res => res.json())
     .then(res => {
-      var authed = !res.data.password.invalid;
-      if(authed) saveToCookie(inputs.password);
-      callback(res, authed);
+      saveToCookie(inputs.password);
+      callback(res);
     },
     err => {
       return;
