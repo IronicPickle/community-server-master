@@ -50,7 +50,6 @@
   "nodemonConfig": {
     "ignore": [
       "node_modules",
-      ".next",
       "client"
     ],
     "watch": [
