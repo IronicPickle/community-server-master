@@ -47,7 +47,7 @@ export default class NodeServer {
       cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 * 7 * 4 /* 4 weeks */ },
       store: Store
     }
-    if(environment === "production") { this.server.set("trust proxy", 1); session.cookie.secure = true; }
+    if(environment === "production") session.cookie.secure = true;
     this.server.use(expressSession(session));
     this.server.use(passport.initialize());
     this.server.use(passport.session());
