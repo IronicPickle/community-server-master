@@ -3,15 +3,14 @@ import { withRouter, RouteComponentProps } from "react-router-dom";
 import React from "react";
 import { Location } from "history";
 
-interface RouteListenerPropsI {
+type Props = {
   handleRouteChange: Function;
-}
+} & RouteComponentProps;
 
-type RouteListenerProps = RouteListenerPropsI & RouteComponentProps;
-class RouteListener extends Component<RouteListenerProps> {
+class RouteListener extends Component<Props> {
   unlisten: Function;
 
-  constructor(props: RouteListenerProps) {
+  constructor(props: Props) {
     super(props)
 
     this.unlisten = () => {};
@@ -27,9 +26,9 @@ class RouteListener extends Component<RouteListenerProps> {
   }
   render() {
     return (
-      <div>
+      <>
         {this.props.children}
-      </div>
+      </>
     );
   }
 }

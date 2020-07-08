@@ -1,5 +1,5 @@
-# Elite: Dangerous Squadron Management Website
-A community portal, enabling the management of Elite: Dangerous Discord communities.
+# Elite: Dangerous Squadron Management Master Server
+A community web portal, enabling the management of Elite: Dangerous Discord communities.
 
 ## Documentation
 **Commands**

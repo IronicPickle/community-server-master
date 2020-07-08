@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { withStyles, Theme, Paper, Typography, Divider, AppBar, Tabs, Tab, CircularProgress, Grid } from "@material-ui/core";
 import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
+import { StatsData } from "../../../pages/Stats";
 
 const styles = (theme: Theme) => ({
   statTitleContainer: {
@@ -16,18 +17,18 @@ const styles = (theme: Theme) => ({
   }
 });
 
-interface PropsI {
+interface Props {
   classes: Classes;
   theme: Theme;
-  stats: any;
+  stats?: StatsData;
 }
 
-interface StatsI {
+interface State {
   tab: number;
 }
 
-class StatsStages extends Component<PropsI, StatsI> {
-  constructor(props: Readonly<PropsI>) {
+class Members extends Component<Props, State> {
+  constructor(props: Readonly<Props>) {
     super(props);
     this.state = {
       tab: 0
@@ -47,10 +48,10 @@ class StatsStages extends Component<PropsI, StatsI> {
     const { tab } = this.state;
 
     return (
-      <div>
+      <>
         <Paper className={classes.statTitleContainer}>
           <Typography variant="h6" component="h6" align="center"
-          >Applications</Typography>
+          >Members</Typography>
         </Paper>
         <AppBar position="static">
           <Tabs value={tab} onChange={this.handleChange} centered={true} variant="fullWidth" aria-label="stages tabs">
@@ -60,46 +61,38 @@ class StatsStages extends Component<PropsI, StatsI> {
         </AppBar>
         <Paper className={classes.statSubContainer}>
           {
-            (Object.keys(stats).length > 0) ?
+            (stats) ?
               <div>
                 <Typography variant="body2" component="p" align="center" >
-                  Total Members
+                Discord Members
                 </Typography>
                 <Typography variant="subtitle1" component="p" align="center" >
-                  {stats.total}
+                  {stats.totalDiscordMembers}
                 </Typography>
                 <Divider className={classes.statDivider} variant="middle" />
                 <Typography variant="body2" component="p" align="center" >
-                  Idle Members
+                  Tracked Members
                 </Typography>
                 <Typography variant="subtitle1" component="p" align="center" >
-                  {(tab === 0) ?
-                      stats.total0
-                    :
-                    Math.floor(stats.total0 / (stats.total / 100)) + "%"
+                  {(tab === 0) ? stats.totalMembers :
+                    Math.floor(stats.totalMembers / (stats.totalDiscordMembers / 100)) + "%"
                   }
                 </Typography>
                 <Divider className={classes.statDivider} variant="middle" />
                 <Typography variant="body2" component="p" align="center" >
-                  Ongoing Applications
+                  Untracked Members
                 </Typography>
                 <Typography variant="subtitle1" component="p" align="center" >
-                  {(tab === 0) ?
-                      stats.total1
-                    :
-                    Math.floor(stats.total1 / (stats.total / 100)) + "%"
+                  {(tab === 0) ? stats.totalDiscordMembers - stats.totalMembers :
+                    Math.floor((stats.totalDiscordMembers - stats.totalMembers) / (stats.totalDiscordMembers / 100)) + "%"
                   }
                 </Typography>
                 <Divider className={classes.statDivider} variant="middle" />
                 <Typography variant="body2" component="p" align="center" >
-                  Completed Applications
+                  Discord Bots
                 </Typography>
                 <Typography variant="subtitle1" component="p" align="center" >
-                {(tab === 0) ?
-                      stats.total2
-                    :
-                      Math.floor(stats.total2 / (stats.total / 100)) + "%"
-                  }
+                  {stats.totalDiscordBots}
                 </Typography>
               </div>
             : 
@@ -115,9 +108,9 @@ class StatsStages extends Component<PropsI, StatsI> {
             </Grid>
           }
         </Paper>
-      </div>
+      </>
     );
   }
 }
 
-export default withStyles(styles, { withTheme: true })(StatsStages);
+export default withStyles(styles, { withTheme: true })(Members);

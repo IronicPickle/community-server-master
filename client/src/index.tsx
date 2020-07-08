@@ -4,74 +4,35 @@ import * as serviceWorker from "./serviceWorker";
 import { Route, BrowserRouter as Router, RouteComponentProps } from "react-router-dom";
 import { createMuiTheme, LinearProgress, withStyles, Box, Backdrop } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/styles";
-import { GlobalContext } from "./utils/contexts";
+import { GlobalContext, Containers, Notification } from "./utils/contexts";
 import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 
 import Index from "./pages/Index";
 import Management from "./pages/Management";
 import Layout from "./components/sections/Layout";
 import RouteListener from "./components/utils/RouteListener";
-import { parseCookies, login } from "./utils/auth";
-import NotificationContainer from "./components/sections/NotificationContainer";
-import LoginContainer from "./components/sections/LoginContainer";
-import CreateMemberContainer from "./components/sections/CreateMemberContainer";
-import EditMemberContainer from "./components/sections/EditMemberContainer";
-import RequestMemberContainer from "./components/sections/RequestMemberContainer";
-import RequestsMemberContainer from "./components/sections/RequestsMemberContainer";
+import HTTPAuth, { DBMemberDataExtended } from "./http_utils/HTTPAuth";
+import NotificationContainer from "./components/sections/containers/Notification";
+import CreateMemberContainer from "./components/sections/containers/CreateMember";
+import EditMemberContainer from "./components/sections/containers/EditMember";
+import RequestMemberContainer from "./components/sections/containers/RequestMember";
+import RequestsMemberContainer from "./components/sections/containers/RequestsMember";
+import Profile from "./pages/Profile";
+//import Stats from "./pages/Stats";
+import Bgs from "./pages/Bgs";
+import CreateMission from "./components/sections/containers/CreateMission";
+import mainTheme from "./themes/main";
+import { DBMemberData } from "./http_utils/HTTPMembers";
 
-const theme = createMuiTheme({
-  palette: {
-    common: {
-      black: "rgba(0, 0, 0, 1)",
-      white: "rgba(255, 255, 255, 1)"
-    },
-    primary: {
-      main: "rgba(30, 30,30, 1)"
-    },
-    secondary: {
-      main: "rgba(253, 203, 14, 1)"
-    },
-    error: {
-      main: "rgba(244,67,54, 1)"
-    },
-    warning: {
-      main: "rgba(255,152,0, 1)"
-    },
-    info: {
-      main: "rgba(33, 150, 243, 1)"
-    },
-    success: {
-      main: "rgba(76, 175, 80, 1)"
-    },
-    contrastThreshold: 3,
-    tonalOffset: 0.2,
-    text: {
-      primary: "rgba(255, 255, 255, 1)",
-      secondary: "rgba(255, 255, 255, 0.7)",
-      disabled: "rgba(255, 255, 255, 0.5)",
-      hint: "rgba(255, 255, 255, 0.5)"
-    },
-    background: {
-      paper: "rgba(33, 33, 33, 1)",
-      default: "rgba(80, 80, 80, 0.8)"
-    },
-    action: {
-      active: "rgba(255, 255, 255, 1)",
-      hover: "rgba(255, 255, 255, 0.30)",
-      hoverOpacity: 0.08,
-      selected: "rgba(255, 255, 255, 0.16)",
-      disabled: "rgba(255, 255, 255, 0.75)",
-      disabledBackground: "rgba(255, 255, 255, 0.12)"
-    }
-  }
-});
+const theme = createMuiTheme(mainTheme);
 
 const styles = () => ({
   loadingBar: {
     backgroundColor: theme.palette.secondary.main
   }, "@global": {
     "*::-webkit-scrollbar": {
-      width: "0.4em"
+      width: "0.4em",
+      height: "0.4em"
     },
     "*::-webkit-scrollbar-track": {
       "-webkit-box-shadow": `inset 0 0 6px ${theme.palette.primary.light}`
@@ -83,40 +44,55 @@ const styles = () => ({
   }
 });
 
-interface PropsI {
-  classes: Classes;
+interface ContainerStates {
+  [key: string]: boolean;
+  login: boolean;
+  createMember: boolean;
+  editMember: boolean;
+  requestMember: boolean;
+  requestsMember: boolean;
 }
-type Props = PropsI & RouteComponentProps;
-interface LayoutStateI {
+
+interface ContainerData {
+  [key: string]: any;
+  editMember?: DBMemberData;
+  requestMember?: DBMemberData;
+  requestsMember?: DBMemberData;
+}
+
+type Props = {
+  classes: Classes;
+} & RouteComponentProps;
+
+interface State {
   loggedIn: boolean;
+  memberData?: DBMemberDataExtended;
+  csrfToken?: string;
   loading: boolean;
   currentRoute: string;
 
+  clipboardValue: string;
 
-  backdropState: boolean,
-  backdropOnClose: any;
-  notificationState: boolean,
-  notificationData: {
-    type: "success" | "info" | "warning" | "error" | undefined,
-    message: string,
-    hideDelay?: number,
-  },
+  backdropState: boolean;
+  backdropOnClose?: (isCancelled: boolean) => void;
+  notificationState: boolean;
+  notificationData: Notification;
 
-  containerStates: any,
-  containerData: any
+  containerStates: ContainerStates;
+  containerData: ContainerData;
 }
 
-class index extends Component<Props, LayoutStateI> {
+class index extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      loggedIn: authenticated,
+      loggedIn: false,
       loading: false,
       currentRoute: window.location.pathname,
+      clipboardValue: "",
 
 
       backdropState: false,
-      backdropOnClose: () => {},
       notificationState: false,
       notificationData: { type: "success", message: "" },
 
@@ -127,11 +103,7 @@ class index extends Component<Props, LayoutStateI> {
         requestMember: false,
         requestsMember: false
       },
-      containerData: {
-        editMember: {},
-        requestMember: {},
-        requestsMember: {}
-      }
+      containerData: {}
     }
 
     this.handleRouteChange = this.handleRouteChange.bind(this);
@@ -139,6 +111,7 @@ class index extends Component<Props, LayoutStateI> {
     this.toggleBackdrop = this.toggleBackdrop.bind(this);
     this.toggleNotification = this.toggleNotification.bind(this);
     this.toggleContainer = this.toggleContainer.bind(this);
+    this.copyToClipboard = this.copyToClipboard.bind(this);
   }
 
   handleRouteChange(route: string) {
@@ -149,57 +122,78 @@ class index extends Component<Props, LayoutStateI> {
     this.setState({loading: state});
   }
 
-  toggleBackdrop(state: boolean, isCancelled: boolean, backdropOnClose?: Function) {
+  toggleBackdrop(state: boolean, isCancelled: boolean, backdropOnClose?: (isCancelled: boolean) => void) {
     this.setState({ backdropState: state });
     if(state) {
       this.setState({ backdropOnClose });
     } else {
-      this.state.backdropOnClose(isCancelled);
+      if(this.state.backdropOnClose) this.state.backdropOnClose(isCancelled);
     }
   }
 
-  toggleNotification(state: boolean, data: any) {
+  toggleNotification(state: boolean, data: Notification) {
     this.setState({ notificationState: state, notificationData: data });
   }
 
-  toggleContainer(container: "login" | "createMember" | "editMember" | "requestMember" | "requestsMember", state: boolean, callback?: Function, data?: any) {
-    let containerStates = this.state.containerStates;
-    containerStates[container] = state;
-    let containerData = this.state.containerData;
+  toggleContainer(container: Containers, state: boolean, callback?: Function, data?: any) {
+    const containerAsString = container.toString();
+    const containerStates = this.state.containerStates;
+    containerStates[containerAsString] = state;
+    const containerData = this.state.containerData;
     if(data) {
-      containerData[container] = data;
+      containerData[containerAsString] = data;
     } else {
       data = {};
     }
 
     this.setState({ containerStates, containerData });
     this.toggleBackdrop(state, !state, (isCancelled: boolean) => {
-      containerStates[container] = false;
+      containerStates[containerAsString] = false;
       this.setState({ containerStates });
       if(callback && !isCancelled) callback();
     });
   }
 
+  copyToClipboard(string: string) {
+    const clipboardInput = document.getElementById("clipboardInput") as HTMLInputElement;
+    clipboardInput.style.display = "block";
+    this.setState({ clipboardValue: string }, () => {
+      clipboardInput.focus();
+      clipboardInput.select();
+      clipboardInput.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      clipboardInput.style.display = "none";
+    });
+  }
+
+  async componentDidMount() {
+    const res = await HTTPAuth.check();
+    const loggedIn = res.success;
+    const memberData = (res.data) ? res.data.member : undefined;
+    this.setState({ loggedIn, memberData });
+  }
+
   render() {
     const { classes } = this.props;
     const {
-      backdropState,
-      notificationState,
-      notificationData,
-      containerStates,
-      containerData
+      loggedIn, memberData,
+      backdropState, notificationState, notificationData, containerStates,
+      containerData, clipboardValue
     } = this.state;
 
     return (
       <Router>
         <ThemeProvider theme={theme} >
           <GlobalContext.Provider value={{
-            loggedIn: this.state.loggedIn,
+            loggedIn: loggedIn,
+            memberData: memberData,
             toggleLoader: this.toggleLoader,
             toggleBackdrop: this.toggleBackdrop,
             toggleNotification: this.toggleNotification,
-            toggleContainer: this.toggleContainer
+            toggleContainer: this.toggleContainer,
+            copyToClipboard: this.copyToClipboard
           }}>
+            <input id="clipboardInput" type="text" value={clipboardValue} readOnly={true} style={{ display: "none", position: "fixed" }} />
             <Box
               position="absolute"
               width="100%"
@@ -214,16 +208,26 @@ class index extends Component<Props, LayoutStateI> {
               <Layout currentRoute={this.state.currentRoute}>
                 <RouteListener handleRouteChange={this.handleRouteChange}>
                   <Route path="/" exact component={Index} />
-                  <Route path="/management" exact component={Management} />
+                  {
+                    (loggedIn && memberData) ?
+                      <>
+                        { (memberData.webPerms["view-management-page"]) ?  <Route path="/management" exact component={Management} /> : null }
+                        { /*(memberData.webPerms["view-stats-page"]) ?  <Route path="/stats" exact component={Stats} /> : */null }
+                        { (memberData.webPerms["view-profile-page"]) ? <Route path="/profile" exact component={Profile} /> : null }
+                        { (memberData.webPerms["view-bgs-page"]) ? <Route path="/bgs" exact component={Bgs} /> : null }
+                      </>
+                    : null
+                  }
                 </RouteListener>
               </Layout>
               <NotificationContainer state={notificationState} data={notificationData} onClose={() => { this.setState({ notificationState: false }); }} />
 
-              <LoginContainer state={containerStates.login} />
               <CreateMemberContainer state={containerStates.createMember} />
               <EditMemberContainer state={containerStates.editMember} data={containerData.editMember} />
               <RequestMemberContainer state={containerStates.requestMember} data={containerData.requestMember} />
               <RequestsMemberContainer state={containerStates.requestsMember} data={containerData.requestsMember}  />
+              
+              <CreateMission state={containerStates.createMission} />
             </Box>
             <Backdrop open={backdropState} onClick={() => { this.toggleBackdrop(false, true); }} style={{zIndex: theme.zIndex.modal}} />
           </GlobalContext.Provider>
@@ -233,18 +237,10 @@ class index extends Component<Props, LayoutStateI> {
   }
 }
 
-const cookies = parseCookies();
-const password = cookies.token;
-var authenticated = false;
-login({password}, (res: any) => {
-  authenticated = res.success;
-  ReactDOM.render(
-    React.createElement(
-      withStyles(styles, { withTheme: true }) (
-        index
-      )
-    ), document.getElementById("root")
-  );
-});
+ReactDOM.render(
+  React.createElement(
+    withStyles(styles, { withTheme: true }) (index)
+  ), document.getElementById("root")
+);
 
 serviceWorker.unregister();

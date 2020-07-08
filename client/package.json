@@ -35,11 +35,12 @@
   },
   "devDependencies": {
     "@material-ui/types": "^4.1.1",
+    "@types/http-proxy-middleware": "^0.19.3",
     "@types/moment": "^2.13.0",
     "@types/react": "16.9.9",
     "@types/react-dom": "16.9.2",
     "@types/react-router-dom": "^5.1.4",
-    "@types/socket.io-client": "^1.4.32"
-  },
-  "proxy": "http://localhost:8080/"
+    "@types/socket.io-client": "^1.4.32",
+    "http-proxy-middleware": "^1.0.4"
+  }
 }

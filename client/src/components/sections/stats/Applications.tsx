@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { withStyles, Theme, Paper, Typography, Divider, AppBar, Tabs, Tab, Grid, CircularProgress } from "@material-ui/core";
 import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
+import { StatsData } from "../../../pages/Stats";
 
 const styles = (theme: Theme) => ({
   statTitleContainer: {
@@ -16,18 +17,18 @@ const styles = (theme: Theme) => ({
   }
 });
 
-interface PropsI {
+interface Props {
   classes: Classes;
   theme: Theme;
-  stats: any;
+  stats?: StatsData;
 }
 
-interface StatsI {
+interface State {
   tab: number;
 }
 
-class StatsOther extends Component<PropsI, StatsI> {
-  constructor(props: Readonly<PropsI>) {
+class Applications extends Component<Props, State> {
+  constructor(props: Readonly<Props>) {
     super(props);
     this.state = {
       tab: 0
@@ -47,10 +48,10 @@ class StatsOther extends Component<PropsI, StatsI> {
     const { tab } = this.state;
 
     return (
-      <div>
+      <>
         <Paper className={classes.statTitleContainer}>
           <Typography variant="h6" component="h6" align="center"
-          >Progress</Typography>
+          >Applications</Typography>
         </Paper>
         <AppBar position="static">
           <Tabs value={tab} onChange={this.handleChange} centered={true} variant="fullWidth" aria-label="stages tabs">
@@ -60,45 +61,41 @@ class StatsOther extends Component<PropsI, StatsI> {
         </AppBar>
         <Paper className={classes.statSubContainer}>
           {
-            (Object.keys(stats).length > 0) ?
+            (stats) ?
               <div>
                 <Typography variant="body2" component="p" align="center" >
-                  Total Revisions
+                  Unstarted
                 </Typography>
                 <Typography variant="subtitle1" component="p" align="center" >
-                  {stats.totalRevisions}
-                </Typography>
-                <Divider className={classes.statDivider} variant="middle" />
-                <Typography variant="body2" component="p" align="center" >
-                  Inara Names Collected
-                </Typography>
-                <Typography variant="subtitle1" component="p" align="center" >
-                  {(tab === 0) ?
-                      stats.totalInara
-                    :
-                    Math.floor(stats.totalInara / (stats.total / 100)) + "%"
+                  {(tab === 0) ? stats.totalMembers0 :
+                    Math.floor(stats.totalMembers0 / (stats.totalMembers / 100)) + "%"
                   }
                 </Typography>
                 <Divider className={classes.statDivider} variant="middle" />
                 <Typography variant="body2" component="p" align="center" >
-                  In-Game Names Collected
+                  In Progress
                 </Typography>
                 <Typography variant="subtitle1" component="p" align="center" >
-                  {(tab === 0) ?
-                    stats.totalInGame
-                  :
-                    Math.floor(stats.totalInGame / (stats.total / 100)) + "%"
+                  {(tab === 0) ? stats.totalMembers1 :
+                    Math.floor(stats.totalMembers1 / (stats.totalMembers / 100)) + "%"
                   }
                 </Typography>
                 <Divider className={classes.statDivider} variant="middle" />
                 <Typography variant="body2" component="p" align="center" >
-                  Members in Private Group
+                  Reviewed
                 </Typography>
                 <Typography variant="subtitle1" component="p" align="center" >
-                  {(tab === 0) ?
-                      stats.totalGroup
-                    :
-                      Math.floor(stats.totalGroup / (stats.total / 100)) + "%"
+                  {(tab === 0) ? stats.totalMembers2 :
+                    Math.floor(stats.totalMembers2 / (stats.totalMembers / 100)) + "%"
+                  }
+                </Typography>
+                <Divider className={classes.statDivider} variant="middle" />
+                <Typography variant="body2" component="p" align="center" >
+                  Completed
+                </Typography>
+                <Typography variant="subtitle1" component="p" align="center" >
+                  {(tab === 0) ? stats.totalMembers3 :
+                    Math.floor(stats.totalMembers3 / (stats.totalMembers / 100)) + "%"
                   }
                 </Typography>
               </div>
@@ -115,9 +112,9 @@ class StatsOther extends Component<PropsI, StatsI> {
               </Grid>
           }
         </Paper>
-      </div>
+      </>
     );
   }
 }
 
-export default withStyles(styles, { withTheme: true })(StatsOther);
+export default withStyles(styles, { withTheme: true })(Applications);

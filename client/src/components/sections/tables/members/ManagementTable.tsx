@@ -1,12 +1,12 @@
-import React, { Component, ChangeEvent, MouseEvent } from "react";
-import { Theme, withStyles, Table, TablePagination, Paper } from "@material-ui/core";
-import { Classes } from "jss";
-
+import React, { Component, ChangeEvent } from "react";
+import { Theme, withStyles, Table, TablePagination, Paper, Toolbar, Typography, Grid } from "@material-ui/core";
+import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import ManagementHead from "./ManagementHead";
 import ManagementBody from "./ManagementBody";
 import ManagementTitle from "./ManagementTitle";
 import { GlobalContext } from "../../../../utils/contexts";
-import { completeMember, revertMember } from "../../../../utils/members";
+import HTTPMembers, { QueryOptions, DBMemberData } from "../../../../http_utils/HTTPMembers";
+import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
 
 const styles = (theme: Theme) => ({
   tableContainer: {
@@ -14,51 +14,77 @@ const styles = (theme: Theme) => ({
     marginTop: theme.spacing(1)
   }
 });
+
+export type IconType = "edit" | "complete" | "revert" | "request" | "requests";
   
-interface PropsI {
+interface Props {
   classes: Classes;
   theme: Theme;
-  data: { [key: string]: any }[];
-  presetFilters: { [key: string]: any };
-  updateTable: Function;
 }
 
-interface StateI {
-  rows: { [key: string]: any }[];
-  sortId: string;
-  sortDirection: "asc" | "desc" | undefined;
+interface State {
+  rows: DBMemberData[];
+  count: number;
+  sortKey: string;
+  sortDirection: 1 | -1;
   searchQuery: string;
   currentPage: number;
   rowsPerPage: number;
-  usePresetFilters: boolean;
+  stage?: 0 | 1 | 2 | 3;
 }
 
-class ManagementTable extends Component<PropsI, StateI> {
+class ManagementTable extends Component<Props, State> {
   static contextType = GlobalContext;
 
-  constructor(props: Readonly<PropsI>) {
+  constructor(props: Readonly<Props>) {
     super(props);
     this.state = {
-      rows: props.data,
-      sortId: "discordId",
-      sortDirection: "asc",
+      rows: [],
+      count: 0,
+      sortKey: "discordName",
+      sortDirection: 1,
       searchQuery: "",
       currentPage: 0,
-      rowsPerPage: 10,
-      usePresetFilters: false
+      rowsPerPage: 10
     }
+
+    this.updateTable = this.updateTable.bind(this);
 
     this.onCheckboxChange = this.onCheckboxChange.bind(this);
     this.onIconButtonClick = this.onIconButtonClick.bind(this);
     this.onSortButtonClick = this.onSortButtonClick.bind(this);
     this.onSearchBarChange = this.onSearchBarChange.bind(this);
+    this.onSearchBarSubmit = this.onSearchBarSubmit.bind(this);
+    this.onStageChange = this.onStageChange.bind(this);
 
     this.onPageChange = this.onPageChange.bind(this);
     this.onRowsPerPageChange = this.onRowsPerPageChange.bind(this);
   }
 
+  componentDidMount() {
+    this.updateTable();
+  }
+
+  async updateTable(): Promise<void> {
+    
+    const queryData: QueryOptions = {
+      searchKey: this.state.sortKey,
+      searchQuery: this.state.searchQuery,
+      sortKey: this.state.sortKey,
+      sortDirection: this.state.sortDirection,
+      snipStart: this.state.currentPage * this.state.rowsPerPage,
+      snipLimit: this.state.rowsPerPage,
+      stage: this.state.stage
+    }
+    this.context.toggleLoader(true);
+    const res = await HTTPMembers.query(queryData);
+    this.context.toggleLoader(false);
+    if(!res.data) return;
+    this.setState({ rows: res.data.members, count: res.data.count });
+  }
+
   onCheckboxChange(rowId: number, columnName: string) {
-    return (event: ChangeEvent<HTMLInputElement>) => {
+    return () => {
       var rows = this.state.rows;
       const row = this.state.rows[rowId];
       if(row && !row.confirmedByAdmiralty) {
@@ -69,218 +95,167 @@ class ManagementTable extends Component<PropsI, StateI> {
     }
   }
 
-  onIconButtonClick(iconType: "editMember" | "completeMember" | "revertMember" | "requestMember" | "requestsMember", data?: any) {
-    return (event: MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      this.iconMethods[iconType](data);
+  onIconButtonClick(iconType: IconType, _id: string) {
+    return () => {
+      this.iconMethods[iconType](_id);
     }
   }
 
-  private iconMethods: { [key: string]: any } = {
-    edit: (data: any) => {
-      const row = this.props.data.find((row => row._id === data._id));
-      this.context.toggleContainer("editMember", true, () => { this.props.updateTable(); }, { ...row });
-    }, complete: (data: any) => {
+  private iconMethods: { [key: string]: (_id: string) => any } = {
+    edit: (_id: string) => {
+      const row = this.state.rows.find((row => row._id === _id));
+      this.context.toggleContainer("editMember", true, () => { this.updateTable(); }, { ...row });
+    }, complete: async (_id: string) => {
       this.context.toggleLoader(true);
-      completeMember(data._id, (res: { success: boolean, msg: string, errors: any }) => {
-        this.context.toggleLoader(false);
-        this.context.toggleNotification(true, {
-          type: (res.success) ? "success" : "error", message: res.msg, hideDelay: 2000
-        });
-        if(!res.success) return;
-        this.props.updateTable();
+      const res = await HTTPMembers.completeApplication(_id, this.context.memberData.discordId);
+      this.context.toggleLoader(false);
+      this.context.toggleNotification(true, {
+        type: (res.success) ? "success" : "error", message: res.msg, hideDelay: 2000
       });
-    }, revert: (data: any) => {
+      if(!res.success) return;
+      this.updateTable();
+    }, revert: async (_id: string) => {
       this.context.toggleLoader(true);
-      revertMember(data._id, (res: { success: boolean, msg: string, errors: any }) => {
-        this.context.toggleLoader(false);
-        this.context.toggleNotification(true, {
-          type: (res.success) ? "success" : "error", message: res.msg, hideDelay: 2000
-        });
-        if(!res.success) return;
-        this.props.updateTable();
+      const res = await HTTPMembers.revertApplication(_id, this.context.memberData.discordId);
+      this.context.toggleLoader(false);
+      this.context.toggleNotification(true, {
+        type: (res.success) ? "success" : "error", message: res.msg, hideDelay: 2000
       });
-    }, request: (data: any) => {
-      const row = this.props.data.find((row => row._id === data._id));
-      this.context.toggleContainer("requestMember", true, () => { this.props.updateTable(); }, { ...row });
-    }, requests: (data: any) => {
-      const row = this.props.data.find((row => row._id === data._id));
-      this.context.toggleContainer("requestsMember", true, () => { this.props.updateTable(); }, { ...row });
+      if(!res.success) return;
+      this.updateTable();
+    }, request: (_id: string) => {
+      const row = this.state.rows.find((row => row._id === _id));
+      this.context.toggleContainer("requestMember", true, () => { this.updateTable(); }, { ...row });
+    }, requests: (_id: string) => {
+      const row = this.state.rows.find((row => row._id === _id));
+      this.context.toggleContainer("requestsMember", true, () => { this.updateTable(); }, { ...row });
     }
   }
 
   onSortButtonClick(columnName: string) {
-    return (event: MouseEvent<HTMLButtonElement, MouseEvent>) => {
-      var sortDirection: "asc" | "desc" | undefined = "asc";
-      if(this.state.sortId === columnName) {
-        sortDirection = (this.state.sortDirection === "asc") ? "desc" : "asc";
+    return () => {
+      let sortDirection: -1 | 1 = 1;
+      if(this.state.sortKey === columnName) {
+        sortDirection = (this.state.sortDirection === 1) ? -1 : 1;
       }
-      this.setState({ sortId: columnName, sortDirection: sortDirection, usePresetFilters: false });
+      this.setState({ sortKey: columnName, sortDirection }, () => {
+        this.updateTable();
+      });
     }
   }
 
-  onSearchBarChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  onSearchBarChange(event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
     const searchQuery: string = event.target.value;
     this.setState({ searchQuery, currentPage: 0 });
   }
 
+  onSearchBarSubmit() {
+    this.updateTable();
+  }
+
+  onStageChange(stage?: 0 | 1 | 2 | 3) {
+    return () => {
+      this.setState({ stage }, () => {
+        this.updateTable();
+      });
+    }
+  }
+
   onPageChange(x: any, pageNumber: number) {
-    this.setState({currentPage: pageNumber});
+    this.setState({ currentPage: pageNumber }, () => {
+      this.updateTable();
+    });
   }
 
   onRowsPerPageChange(event: ChangeEvent<HTMLInputElement>) {
     const rowsPerPage: number = parseInt(event.target.value);
-    this.setState({rowsPerPage});
-  }
-
-  UNSAFE_componentWillReceiveProps() {
-    this.setState({ usePresetFilters: true });
-  }
-
-  componentDidUpdate(prevProps: Readonly<PropsI> & Readonly<{ children?: React.ReactNode; }>) {
-    if(this.props !== prevProps) {
-      const dataCopy = JSON.parse(JSON.stringify(this.props.data));
-      surfaceNested(dataCopy);
-      processRows(dataCopy);
-      this.setState({ rows: dataCopy });
-    }
+    this.setState({ rowsPerPage }, () => {
+      this.updateTable();
+    });
+    
   }
     
   render() {
-    const { classes, presetFilters, updateTable } = this.props;
-    const { rows, sortId, sortDirection, searchQuery, currentPage, rowsPerPage, usePresetFilters } = this.state;
+    const { classes, theme } = this.props;
+    const { rows, count, sortKey, sortDirection, currentPage, rowsPerPage, stage } = this.state;
 
-    var filters: { [key: string]: any } = presetFilters;
-    if(!usePresetFilters) {
-      filters.sortId = sortId;
-      filters.sortDirection = sortDirection;
-    }
-    let filteredColumn = tableColumns.find(column => column.name === filters.sortId);
-    if(!filteredColumn) filteredColumn = {};
-
-    var rowsCopy: { [key: string]: any }[] = [ ...rows ];
-    const rowsLength = rowsCopy.length;
-    if(rowsLength > 0) {
-      sortRows(rowsCopy, filters.sortId, filters.sortDirection);
-      rowsCopy = filterRows(rowsCopy, sortId, searchQuery);
-      rowsCopy = snipRows(rowsCopy, currentPage, rowsPerPage);
-    }
+    const filteredColumn = tableColumns.find((column: Column) => column.name === sortKey);
     
     return (
-      <div>
+      <>
         <ManagementTitle
           filteredColumn={filteredColumn}
+          stage={stage}
           onSearchBarChange={this.onSearchBarChange}
-          updateTable={updateTable}
+          onSearchBarSubmit={this.onSearchBarSubmit}
+          onStageChange={this.onStageChange}
+          updateTable={this.updateTable}
         />
         <Paper className={classes.tableContainer}>
-          <Table>
-            <ManagementHead
-              tableColumns={tableColumns}
-              filters={filters}
-              onSortButtonClick={this.onSortButtonClick}
-            />
-            {
-              (rowsLength > 0) ?
+        {
+          (rows.length === 0) ?
+            <Grid container justify="center">
+              <Grid item>
+                <Toolbar>
+                  <ErrorOutlineIcon  style={{ marginRight: theme.spacing(1) }} />
+                  <Typography variant="body2" component="p" align="center" noWrap
+                  >No data to display</Typography>
+                </Toolbar>
+              </Grid>
+            </Grid>
+            
+          :
+            <>
+              <Table>
+                <ManagementHead
+                  columns={tableColumns}
+                  filters={{ sortKey, sortDirection }}
+                  onSortButtonClick={this.onSortButtonClick}
+                />
                 <ManagementBody
-                  tableColumns={tableColumns}
-                  rows={rows}
-                  rowsCopy={rowsCopy}
+                  columns={tableColumns}
+                  rows={JSON.parse(JSON.stringify(rows))}
                   onCheckboxChange={this.onCheckboxChange}
                   onIconButtonClick={this.onIconButtonClick}
                 />
-              : <></>
-            }
-          </Table>
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={rowsLength}
-            rowsPerPage={rowsPerPage}
-            page={currentPage}
-            backIconButtonProps={{
-              "aria-label": "previous page",
-            }}
-            nextIconButtonProps={{
-              "aria-label": "next page",
-            }}
-            onChangePage={this.onPageChange}
-            onChangeRowsPerPage={this.onRowsPerPageChange}
-          />
+              </Table>
+              <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={count}
+              rowsPerPage={rowsPerPage}
+              page={currentPage}
+              backIconButtonProps={{
+                "aria-label": "previous page",
+              }}
+              nextIconButtonProps={{
+                "aria-label": "next page",
+              }}
+              onChangePage={this.onPageChange}
+              onChangeRowsPerPage={this.onRowsPerPageChange}
+            />
+          </>
+        }
         </Paper>
-      </div>
+      </>
     )
   }
 }
 
-const surfaceNested = (rows: { [key: string]: any }[]) => {
-  for(const i in rows) {
-    const row = rows[i];
-    for(const ii in row) {
-      const cell = row[ii];
-      if(typeof cell === "object") {
-        for(const iii in cell) {
-          const nested = cell[iii];
-          const name = iii.charAt(0).toUpperCase() + iii.substr(1);
-          rows[i][ii + name] = nested;
-        }
-      }
-    }
-  }
+export interface Column {
+  name: string;
+  title: string;
+  isBool?: boolean;
+  disabled?: boolean;
 }
 
-const processRows = (rows: { [key: string]: any }[]) => {
-  for(const i in rows) {
-    const row = rows[i];
-    for(const ii in row) {
-      const cell = row[ii];
-      if(ii === "applicationStatusStage") {
-        const states = ["Not Started", "In Progress", "Completed"];
-        rows[i][ii] = states[cell];
-      }
-    }
-  }
-}
-
-const sortRows = (rows: { [key: string]: any }[], columnName: string, sortDirection: "asc" | "desc" | undefined) => {
-  rows.sort((a: { [key: string]: any }, b: { [key: string]: any }) => {
-    const A = ((sortDirection === "asc") ? a : b)[columnName];
-    const B = ((sortDirection !== "asc") ? a : b)[columnName];
-    return sortMethods[typeof A](A, B);
-  });
-}
-
-const sortMethods: { [key: string]: Function } = {
-  string: (A: string, B: string) => {
-    return A.localeCompare(B);
-  }, number: (A: number, B: number) => {
-    return A - B;
-  }, boolean: (A: boolean, B: boolean) => {
-    return (A < B) ? 1 : -1;
-  }
-}
-
-const filterRows = (rows: { [key: string]: any }[], sortId: string, searchQuery: string) => {
-  return rows.filter((row: { [key: string]: any }) => {
-    const cell = row[sortId];
-    const columnAsString = (cell + "").toLocaleLowerCase();
-    if(columnAsString.includes(searchQuery.toLocaleLowerCase())) {
-      return true;
-    }
-    return false;
-  });
-}
-
-const snipRows = (rows: { [key: string]: any }[], currentPage: number, rowsPerPage: number) => {
-  const startIndex = (currentPage * rowsPerPage)
-  return rows.slice(startIndex, (startIndex + rowsPerPage));
-}
-
-const tableColumns: { [key: string]: any }[] = [
-  { name: "discordId", title: "Discord ID" },
+const tableColumns: Column[] = [
+  { name: "discordName", title: "Discord Name" },
   { name: "inaraName", title: "Inara Name" },
   { name: "inGameName", title: "In-Game Name" },
-  { name: "joinedPrivateGroup", title: "Joined Private Group", isBool: true },
-  { name: "applicationStatusStage", title: "Application Stage" }
+  { name: "joinedSquadron", title: "Joined Squadron", isBool: true },
+  { name: "joinedInaraSquadron", title: "Joined Inara Squadron", isBool: true },
+  { name: "applicationStatus.stage", title: "Application Stage" }
 ]
 
 
