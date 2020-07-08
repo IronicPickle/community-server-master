@@ -21,11 +21,13 @@ url: string - The public URL of the web portal.
 devUrl: string - The public developer URL of the web portal. [Optional]
 port: number - The port the web server will listen on. (8080)
 
-companion.url: string - The URL of the companion server. (http://localhost:8081)
-companion.token: string - A unique authorisation token used to authenticate against the companion server. This should match the token configured on the companion server.
+companion:
+  url: string - The URL of the companion server. (http://localhost:8081)
+  token: string - A unique authorisation token used to authenticate against the companion server. This should match the token configured on the companion server.
 
-discord.clientId: string - A discord client ID generated via the discord developer portal.
-discord.clientSecret: string - A discord client secret generated via the discord developer portal.
+discord: 
+  clientId: string - A discord client ID generated via the discord developer portal.
+  clientSecret: string - A discord client secret generated via the discord developer portal.
 
 dbUrl: string - The URL of the MongoDB server that should be used. (mongodb://localhost/eliteCDB)
 sessionSecret: string - A unique secret used by express session.
