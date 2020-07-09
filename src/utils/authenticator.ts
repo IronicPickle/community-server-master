@@ -1,6 +1,6 @@
 import { Request, NextFunction, Response } from "express";
 import csurf from "csurf";
-import members from "../models/members";
+import Members from "../models/Members";
 import { config } from "./Config";
 import { backendConfig } from "./BackendConfig";
 
@@ -28,7 +28,7 @@ async function check(user?: { [key: string]: any }, requiredPermString?: string)
 
   if(!user) return false;
 
-  const member = await members.findById(user._id);
+  const member = await Members.findById(user._id);
 
   if(!member) return false;
 

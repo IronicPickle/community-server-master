@@ -1,4 +1,4 @@
-import Members from "../models/members";
+import Members from "../models/Members";
 
 export default class Validation {
 
