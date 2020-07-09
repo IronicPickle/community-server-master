@@ -3,7 +3,7 @@ import { Strategy, Profile } from "passport-discord";
 import refresh from "passport-oauth2-refresh";
 import members from "../models/members";
 import { backendConfig } from "../utils/BackendConfig";
-import { config } from "../utils/config";
+import { config } from "../utils/Config";
 
 export default class DiscordStrategy {
 

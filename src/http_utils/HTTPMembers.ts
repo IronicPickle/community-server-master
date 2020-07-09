@@ -1,5 +1,5 @@
 import HTTPMethods, { GetResponse } from "./HTTPMethods";
-import { PermissionString } from "../utils/config";
+import { PermissionString } from "../utils/Config";
 
 interface DiscordRole {
   guild: string;

@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import wrap from "../utils/wrap";
 import passport from "passport";
 import Members, { MembersI } from "../models/members";
-import { config } from "../utils/config";
+import { config } from "../utils/Config";
 import { backendConfig } from "../utils/BackendConfig";
 
 const router = express.Router();

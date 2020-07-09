@@ -1,11 +1,11 @@
 import express, { Request, Response, NextFunction } from "express";
-import Members from "../models/members";
+import Members from "../models/Members";
 import wrap from "../utils/wrap";
 import Validation from "../utils/Validation";
 import mongoose from "mongoose";
 import HTTPNotify from "../http_utils/HTTPNotify";
-import Config, { config, PermissionString } from "../utils/config";
-import Missions, { MissionsI } from "../models/missions";
+import Config, { config, PermissionString } from "../utils/Config";
+import Missions, { MissionsI } from "../models/Missions";
 import HTTPMissions from "../http_utils/HTTPMissions";
 import HTTPBGS from "../http_utils/HTTPBGS";
 import HTTPMembers from "../http_utils/HTTPMembers";
