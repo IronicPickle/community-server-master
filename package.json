@@ -10,7 +10,9 @@
     "build": "npm run clean && npm run compile:typescript && npm run build:react",
     "prepare": "cd ./client && npm install && cd .. && echo Preparing build... && npm run build",
     "dev": "concurrently --names Server,Client \"nodemon\" \"npm run start --prefix ./client\"",
-    "prod": "clear && cross-env NODE_ENV=production node ./build/app.js"
+    "prod": "cross-env NODE_ENV=production forever start ./build/app.js && echo Started production server",
+    "stop": "forever stop ./build/app.js && echo Stopped production server",
+    "restart": "npm run stop && npm run prod"
   },
   "repository": {
     "type": "git",
@@ -31,6 +33,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "figlet": "^1.4.0",
+    "forever": "^3.0.0",
     "jsonschema": "^1.2.6",
     "mongoose": "^5.9.20",
     "passport": "^0.4.1",
