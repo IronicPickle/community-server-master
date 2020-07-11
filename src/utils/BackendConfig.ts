@@ -7,6 +7,7 @@ interface BackendConfigSchema {
   url: string | null,
   devUrl: string | null,
   port: number,
+  proxy: boolean,
   companion: {
     url: string,
     token: string | null
@@ -23,6 +24,7 @@ const defaultBackendConfig: BackendConfigSchema = {
   url: null,
   devUrl: null,
   port: 8080,
+  proxy: false,
   companion: {
     url: "http://localhost:8081",
     token: null
@@ -43,6 +45,7 @@ const backendConfigSchema: Schema = {
     url: { type: [ "string", "null" ] },
     devUrl: { type: [ "string", "null" ] },
     port: { type: "number" },
+    proxy: { type: "boolean" },
     master: {
       type: "object",
       properties: {
