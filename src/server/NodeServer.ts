@@ -70,6 +70,7 @@ export default class NodeServer {
 
       for(const i in routes) {
         express.use(i, routes[i]);
+        logger.info(`[Node] Registered route '${i}'`);
       }
 
       if(environment === "production") express.use(csurf());
