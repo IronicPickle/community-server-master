@@ -54,7 +54,7 @@ const defaultConfig: ConfigSchema = {
     //"query-members-stats": "ADMINISTRATOR", // unused
     "query-missions": "SEND_MESSAGES",
 
-    "create-member": "ADMINISTRATOR",
+    "create-member": "MANAGE_MESSAGES",
     "create-revision-request": "MANAGE_MESSAGES",
     "broadcast-mission": "MANAGE_MESSAGES",
 
@@ -63,8 +63,8 @@ const defaultConfig: ConfigSchema = {
     //"update-member": "ADMINISTRATOR", // unused
     //"start-application": "ADMINISTRATOR", // unused
     //"reset-application": "ADMINISTRATOR", // unused
-    "complete-application": "ADMINISTRATOR",
-    "revert-application": "ADMINISTRATOR"
+    "complete-application": "MANAGE_MESSAGES",
+    "revert-application": "MANAGE_MESSAGES"
   }
 }
 
