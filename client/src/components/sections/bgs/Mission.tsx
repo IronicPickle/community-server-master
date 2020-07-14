@@ -77,9 +77,9 @@ class Mission extends Component<Props> {
                         {
                           (faction.id !== 81923) ?
                             (mission.factionsData.factionId === faction.id) ?
-                              <u>{faction.name} - {influence}%<br/></u>
+                              <><u>{faction.name} - {influence}%</u> <b>{faction.state}</b><br/></>
                             :
-                              <>{faction.name} - {influence}%<br/></>
+                              <>{faction.name} - {influence}% <b>{faction.state}</b><br/></>
                           : ""
                         }
                         

@@ -6,13 +6,20 @@ export interface FactionData {
   name: string;
   alleigiance: string;
   government: string;
+  influence: number;
+  state: string;
   isPlayer: boolean;
 }
 
 export interface FactionsData {
   id: string;
   name: string;
-  controllingFaction: FactionData;
+  controllingFaction: {
+    id: number;
+    name: string;
+    alleigiance: string;
+    government: string;
+  };
   factions: FactionData[];
   factionId: number;
 }
