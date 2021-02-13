@@ -20,7 +20,7 @@ export default class DiscordStrategy {
   }
 
   register() {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
 
       if(!this.clientId) throw new Error("[Config] No discord client ID configured");
       if(!this.clientSecret) throw new Error("[Config] No discord client secret configured");

@@ -33,7 +33,7 @@ const defaultBackendConfig: BackendConfigSchema = {
     clientId: null,
     clientSecret: null
   },
-  dbUrl: "mongodb://localhost/eliteCDB",
+  dbUrl: "mongodb://localhost/communityDB",
   sessionSecret: null
 }
 
@@ -72,7 +72,7 @@ export default class BackendConfig {
 
   public static load() {
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       fs.readFile(this.path, { encoding: "utf-8" }, (err: NodeJS.ErrnoException | null, data: string) => {
         if(err) {
           this.generate();

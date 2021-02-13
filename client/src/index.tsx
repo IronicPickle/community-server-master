@@ -14,13 +14,8 @@ import RouteListener from "./components/utils/RouteListener";
 import HTTPAuth, { DBMemberDataExtended } from "./http_utils/HTTPAuth";
 import NotificationContainer from "./components/sections/containers/Notification";
 import CreateMemberContainer from "./components/sections/containers/CreateMember";
-import EditMemberContainer from "./components/sections/containers/EditMember";
-import RequestMemberContainer from "./components/sections/containers/RequestMember";
-import RequestsMemberContainer from "./components/sections/containers/RequestsMember";
 import Profile from "./pages/Profile";
 //import Stats from "./pages/Stats";
-import Bgs from "./pages/Bgs";
-import CreateMission from "./components/sections/containers/CreateMission";
 import mainTheme from "./themes/main";
 import { DBMemberData } from "./http_utils/HTTPMembers";
 
@@ -46,18 +41,11 @@ const styles = () => ({
 
 interface ContainerStates {
   [key: string]: boolean;
-  login: boolean;
   createMember: boolean;
-  editMember: boolean;
-  requestMember: boolean;
-  requestsMember: boolean;
 }
 
 interface ContainerData {
   [key: string]: any;
-  editMember?: DBMemberData;
-  requestMember?: DBMemberData;
-  requestsMember?: DBMemberData;
 }
 
 type Props = {
@@ -97,7 +85,6 @@ class index extends Component<Props, State> {
       notificationData: { type: "success", message: "" },
 
       containerStates: {
-        login: false,
         createMember: false,
         editMember: false,
         requestMember: false,
@@ -214,7 +201,6 @@ class index extends Component<Props, State> {
                         { (memberData.webPerms["view-management-page"]) ?  <Route path="/management" exact component={Management} /> : null }
                         { /*(memberData.webPerms["view-stats-page"]) ?  <Route path="/stats" exact component={Stats} /> : */null }
                         { (memberData.webPerms["view-profile-page"]) ? <Route path="/profile" exact component={Profile} /> : null }
-                        { (memberData.webPerms["view-bgs-page"]) ? <Route path="/bgs" exact component={Bgs} /> : null }
                       </>
                     : null
                   }
@@ -223,11 +209,6 @@ class index extends Component<Props, State> {
               <NotificationContainer state={notificationState} data={notificationData} onClose={() => { this.setState({ notificationState: false }); }} />
 
               <CreateMemberContainer state={containerStates.createMember} />
-              <EditMemberContainer state={containerStates.editMember} data={containerData.editMember} />
-              <RequestMemberContainer state={containerStates.requestMember} data={containerData.requestMember} />
-              <RequestsMemberContainer state={containerStates.requestsMember} data={containerData.requestsMember}  />
-              
-              <CreateMission state={containerStates.createMission} />
             </Box>
             <Backdrop open={backdropState} onClick={() => { this.toggleBackdrop(false, true); }} style={{zIndex: theme.zIndex.modal}} />
           </GlobalContext.Provider>

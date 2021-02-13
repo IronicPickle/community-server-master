@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 
 const styles = (theme: Theme) => ({
   mainContainer: {
-    minWidth: 800,
     marginTop: theme.spacing(12),
     marginBottom: theme.spacing(8)
   }, titleContainer: {

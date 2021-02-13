@@ -3,10 +3,6 @@ import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import { Component, ChangeEvent, KeyboardEvent } from "react";
 import React from "react";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import CheckIcon from "@material-ui/icons/Check";
-import ClearIcon from "@material-ui/icons/Clear";
-import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
-import RateReviewIcon from "@material-ui/icons/RateReview";
 import { GlobalContext } from "../../../../utils/contexts";
 import { Column } from "./ManagementTable";
 import { DBMemberDataExtended } from "../../../../http_utils/HTTPAuth";
@@ -73,43 +69,6 @@ class ManagementTitle extends Component<Props> {
                     variant="h6"
                     component="h6"
                   >Squadron Management</Typography>
-                </Toolbar>
-              </Grid>
-            </Grid>
-            <Grid container justify="center">
-              <Grid item>
-                <Toolbar style={{padding: 0}}>
-                  <Divider className={classes.divider} orientation="vertical" variant="middle" />
-
-                  <IconButton onClick={onStageChange(0)} color="secondary" disabled={stage === 0}>
-                    <Tooltip title="Filter: Not Started" aria-label="filter not started">
-                      <ClearIcon color="secondary"/>
-                    </Tooltip>
-                  </IconButton>
-                  <IconButton onClick={onStageChange(1)} color="secondary" disabled={stage === 1}>
-                    <Tooltip title="Filter: In Progress" aria-label="filter in progress">
-                      <HourglassEmptyIcon color="secondary"/>
-                    </Tooltip>
-                  </IconButton>
-                  <IconButton onClick={onStageChange(2)} color="secondary" disabled={stage === 2}>
-                    <Tooltip title="Filter: Reviewed" aria-label="filter reviewed">
-                      <RateReviewIcon color="secondary"/>
-                    </Tooltip>
-                  </IconButton>
-                  <IconButton onClick={onStageChange(3)} color="secondary" disabled={stage === 3}>
-                    <Tooltip title="Filter: Completed" aria-label="filter completed">
-                      <CheckIcon color="secondary"/>
-                    </Tooltip>
-                  </IconButton>
-
-                  <Switch color="secondary"
-                    disabled={typeof stage === "undefined"}
-                    checked={typeof stage !== "undefined"}
-                    onChange={onStageChange()}
-                    name="checkedA"
-                  />
-
-                  <Divider className={classes.divider} orientation="vertical" variant="middle" />
                 </Toolbar>
               </Grid>
             </Grid>

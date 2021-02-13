@@ -44,8 +44,6 @@ class ManagementHead extends Component<PropsI> {
                 )
               })
             }
-            <TableCell key="actions1" align="center" className={classes.cell}></TableCell>
-            <TableCell key="actions2" align="center" className={classes.cell}></TableCell>
           </TableRow>
         </TableHead>
       </>

@@ -2,17 +2,13 @@ import { Theme, TableRow, TableCell, withStyles, TableBody, Checkbox, IconButton
 import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import { Component } from "react";
 import React from "react";
-import ClearIcon from "@material-ui/icons/Clear";
-import CheckIcon from "@material-ui/icons/Check";
-import NotificationsActiveIcon from "@material-ui/icons/NotificationsActive";
-import EditIcon from "@material-ui/icons/Edit";
-import VisibilityIcon from "@material-ui/icons/Visibility";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
 import { GlobalContext } from "../../../../utils/contexts";
 import { DBMemberData } from "../../../../http_utils/HTTPMembers";
 import { DBMemberDataExtended } from "../../../../http_utils/HTTPAuth";
 import { IconType, Column } from "./ManagementTable";
 import { getHighestRole } from "../../../../pages/Profile";
+import moment from "moment";
 
 
 const styles = (theme: Theme) => ({
@@ -28,12 +24,6 @@ const styles = (theme: Theme) => ({
     overflow: "hidden" as "hidden"
   },
 });
-
-type DBMemberDataProcessed = {
-  applicationStatus: {
-    stage: string;
-  };
-} & DBMemberData;
   
 interface Props {
   classes: Classes;
@@ -65,17 +55,18 @@ class ManagementHead extends Component<Props> {
 
   render() {
     const { classes, rows, columns, onCheckboxChange, onIconButtonClick } = this.props;
+    const processedRows = processRows(rows);
+    console.log(processedRows)
 
     const memberData: DBMemberDataExtended = this.context.memberData;
 
-    const processedRows = processRows(rows);
-    surfaceNested(processedRows);
+    surfaceNested(rows);
 
     return (
       <>
         <TableBody>
           {
-            processedRows.map((row: DBMemberDataProcessed) => {
+            processedRows.map((row: DBMemberData) => {
               const highestRole = getHighestRole(row);
               return (
                 <TableRow key={row._id}>
@@ -83,7 +74,6 @@ class ManagementHead extends Component<Props> {
                     key={`avatars_${row._id}`}
                     align="center"
                     className={classes.cell}
-                    style={{ paddingRight: 0 }}
                   >
                     <Tooltip title={row.discordName} placement="bottom" PopperProps={{ disablePortal: true }}>
                       <Avatar alt={row.discordName} src={row.discordAvatar}
@@ -97,7 +87,6 @@ class ManagementHead extends Component<Props> {
                           key={`${column.name}_${row._id}`}
                           align="center"
                           className={classes.cell}
-                          style={(row.confirmedByAdmiralty) ? {opacity: 0.4} : {}}
                         >
                           {
                             (column.name === "discordName") ?
@@ -144,66 +133,6 @@ class ManagementHead extends Component<Props> {
                       )
                     })
                   }
-                  <TableCell key={`actions1_${row._id}`} align="center" className={classes.cell}>
-                    {
-                      (
-                        row.applicationStatus.stage === "Reviewed" &&
-                        row.joinedSquadron &&
-                        row.joinedInaraSquadron &&
-                        row.inaraName.length > 0 &&
-                        row.inGameName.length > 0
-                      ) ?
-                        (memberData.webPerms["complete-application"]) ?
-                          <IconButton onClick={onIconButtonClick("complete", row._id)} color="secondary">
-                            <Tooltip title="Complete Application" aria-label="complete application">
-                              <CheckIcon color="secondary"/>
-                            </Tooltip>
-                          </IconButton>
-                        : null
-                      :
-                        (memberData.webPerms["revert-application"]) ?
-                          (row.applicationStatus.stage === "Completed") ?
-                            <IconButton onClick={onIconButtonClick("revert", row._id)} color="secondary">
-                              <Tooltip title="Revert Application" aria-label="revert application">
-                                <ClearIcon color="secondary"/>
-                              </Tooltip>
-                            </IconButton>
-                          : null
-                        : null
-
-                    }
-                    {
-                      (memberData.webPerms["create-revision-request"]) ?
-                        (row.applicationStatus.stage === "In Progress" || row.applicationStatus.stage === "Reviewed") ?
-                          <IconButton onClick={onIconButtonClick("request", row._id)} color="secondary">
-                            {
-                              <Tooltip title="Request Revision" aria-label="request revision">
-                                <NotificationsActiveIcon color="secondary"/>
-                              </Tooltip>
-                            }
-                          </IconButton>
-                        : null
-                      : null
-                    }
-                  </TableCell>
-                  <TableCell key={`actions2_${row._id}`} align="center" className={classes.cell}>
-                    {
-                      (memberData.webPerms["edit-member"]) ?
-                        (row.applicationStatus.stage !== "Completed") ?
-                          <IconButton onClick={onIconButtonClick("edit", row._id)} color="secondary">
-                            <Tooltip title="Edit" aria-label="edit member">
-                              <EditIcon color="secondary"/>
-                            </Tooltip>
-                          </IconButton>
-                        : null
-                      : null
-                    }
-                    <IconButton onClick={onIconButtonClick("requests", row._id)} color="secondary">
-                      <Tooltip title="View Revision Requests" aria-label="review revision messages">
-                        <VisibilityIcon color="secondary"/>
-                      </Tooltip>
-                    </IconButton>
-                  </TableCell>
                 </TableRow>
               )
             })
@@ -230,13 +159,11 @@ const surfaceNested = (data: DBMemberData[]) => {
   }
 }
 
-const processRows = (rows: DBMemberData[]): DBMemberDataProcessed[] => {
-  const processedRows: any[] = [];
+const processRows = (rows: DBMemberData[]): DBMemberData[] => {
+  const processedRows: DBMemberData[] = [];
   for(const i in rows) {
-    const row = rows[i];
-    const stages = ["Not Started", "In Progress", "Reviewed", "Completed"];
-    processedRows.push({ ...rows[i] });
-    processedRows[i].applicationStatus.stage = stages[row.applicationStatus.stage];
+    processedRows.push(rows[i]);
+    processedRows[i].joinDate = moment(processedRows[i].joinDate).format("hh:mm DD/MM/YYYY");
   }
   return processedRows;
 }

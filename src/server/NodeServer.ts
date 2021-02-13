@@ -54,7 +54,7 @@ export default class NodeServer {
   }
 
   start() {
-    return new Promise(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
 
       const environment = process.env.NODE_ENV;
 

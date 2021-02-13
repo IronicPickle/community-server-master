@@ -1,5 +1,5 @@
-# Elite: Dangerous Squadron Management Master
-Used in conjunction with https://github.com/IronicPickle/elite-community-companion/ to create an interactive squadron management system for Elite: Dangerous.<br/>
+# Community Web Server: Master
+Used in conjunction with https://github.com/IronicPickle/community-server-companion/.
 The master server acts as a central hub for data by hosting the web portal, managing the database and querying external APIs.
 
 *Note: Both servers must be hosted simultaneously and must have each other's address configured.*

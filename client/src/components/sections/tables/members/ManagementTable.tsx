@@ -102,34 +102,10 @@ class ManagementTable extends Component<Props, State> {
   }
 
   private iconMethods: { [key: string]: (_id: string) => any } = {
-    edit: (_id: string) => {
+    /*edit: (_id: string) => {
       const row = this.state.rows.find((row => row._id === _id));
       this.context.toggleContainer("editMember", true, () => { this.updateTable(); }, { ...row });
-    }, complete: async (_id: string) => {
-      this.context.toggleLoader(true);
-      const res = await HTTPMembers.completeApplication(_id, this.context.memberData.discordId);
-      this.context.toggleLoader(false);
-      this.context.toggleNotification(true, {
-        type: (res.success) ? "success" : "error", message: res.msg, hideDelay: 2000
-      });
-      if(!res.success) return;
-      this.updateTable();
-    }, revert: async (_id: string) => {
-      this.context.toggleLoader(true);
-      const res = await HTTPMembers.revertApplication(_id, this.context.memberData.discordId);
-      this.context.toggleLoader(false);
-      this.context.toggleNotification(true, {
-        type: (res.success) ? "success" : "error", message: res.msg, hideDelay: 2000
-      });
-      if(!res.success) return;
-      this.updateTable();
-    }, request: (_id: string) => {
-      const row = this.state.rows.find((row => row._id === _id));
-      this.context.toggleContainer("requestMember", true, () => { this.updateTable(); }, { ...row });
-    }, requests: (_id: string) => {
-      const row = this.state.rows.find((row => row._id === _id));
-      this.context.toggleContainer("requestsMember", true, () => { this.updateTable(); }, { ...row });
-    }
+    }*/
   }
 
   onSortButtonClick(columnName: string) {
@@ -251,11 +227,7 @@ export interface Column {
 
 const tableColumns: Column[] = [
   { name: "discordName", title: "Discord Name" },
-  { name: "inaraName", title: "Inara Name" },
-  { name: "inGameName", title: "In-Game Name" },
-  { name: "joinedSquadron", title: "Joined Squadron", isBool: true },
-  { name: "joinedInaraSquadron", title: "Joined Inara Squadron", isBool: true },
-  { name: "applicationStatus.stage", title: "Application Stage" }
+  { name: "joinDate", title: "Joined" }
 ]
 
 

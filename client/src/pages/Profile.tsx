@@ -3,11 +3,8 @@ import { withStyles, Theme, Container, Paper, Toolbar, Grid, Typography, IconBut
 import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import { GlobalContext } from "../utils/contexts";
 import VisibilityIcon from "@material-ui/icons/Visibility";
-import ApplicationProgress from "../components/sections/profile/ApplicationProgress";
 import GenericInfo from "../components/sections/profile/GenericInfo";
 import DiscordInfo from "../components/sections/profile/DiscordInfo";
-import SubmittedInfo from "../components/sections/profile/SubmittedInfo";
-import ApplicationInfo from "../components/sections/profile/ApplicationInfo";
 import { DBMemberDataExtended } from "../http_utils/HTTPAuth";
 import { DiscordRole, DBMemberData } from "../http_utils/HTTPMembers";
 
@@ -68,7 +65,6 @@ class Profile extends Component<Props> {
                 <Typography variant="h6" component="h6" align="center" noWrap
                   >Application Progress</Typography>
               </div>
-              <ApplicationProgress memberData={memberData} />
               <IconButton onClick={this.onViewRequests} color="secondary">
                 <Tooltip title="View Revision Requests" aria-label="review revision messages">
                   <VisibilityIcon color="secondary"/>
@@ -87,12 +83,6 @@ class Profile extends Component<Props> {
                   <Grid container justify="flex-start" wrap="nowrap" spacing={2}>
                     <Grid item sm={4}>
                       <DiscordInfo memberData={memberData} />
-                    </Grid>
-                    <Grid item sm={4}>
-                      <SubmittedInfo memberData={memberData} />
-                    </Grid>
-                    <Grid item sm={4}>
-                      <ApplicationInfo memberData={memberData} />
                     </Grid>
                   </Grid>
 

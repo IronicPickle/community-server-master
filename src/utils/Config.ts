@@ -43,7 +43,6 @@ interface ConfigSchema {
 const defaultConfig: ConfigSchema = {
   permissions: {
     "view-management-page": "MANAGE_MESSAGES",
-    "view-bgs-page": "SEND_MESSAGES",
     //"view-stats-page": "ADMINISTRATOR", //unused
     "view-profile-page": "SEND_MESSAGES",
 
@@ -52,19 +51,12 @@ const defaultConfig: ConfigSchema = {
     //"query-config": "ADMINISTRATOR", // unused
     "query-members": "MANAGE_MESSAGES",
     //"query-members-stats": "ADMINISTRATOR", // unused
-    "query-missions": "SEND_MESSAGES",
 
     "create-member": "MANAGE_MESSAGES",
-    "create-revision-request": "MANAGE_MESSAGES",
-    "broadcast-mission": "MANAGE_MESSAGES",
 
     //"edit-config": "ADMINISTRATOR", // unused
     "edit-member": "MANAGE_MESSAGES",
     //"update-member": "ADMINISTRATOR", // unused
-    //"start-application": "ADMINISTRATOR", // unused
-    //"reset-application": "ADMINISTRATOR", // unused
-    "complete-application": "MANAGE_MESSAGES",
-    "revert-application": "MANAGE_MESSAGES"
   }
 }
 
@@ -77,7 +69,6 @@ const configSchema: Schema = {
       type: "object",
       properties: {
         "view-management-page": { type: "string" },
-        "view-bgs-page": { type: "string" },
         //"view-stats-page": { type: "string" }, //unused
         "view-profile-page": { type: "string" },
 
@@ -86,19 +77,10 @@ const configSchema: Schema = {
         //"query-config": { type: "string" }, // unused
         "query-members": { type: "string" },
         //"query-members-stats": { type: "string" }, // unused
-        "query-missions": { type: "string" },
 
         "create-member": { type: "string" },
-        "create-revision-request": { type: "string" },
-        "broadcast-mission": { type: "string" },
 
         //"edit-config": { type: "string" }, // unused
-        "edit-member": { type: "string" },
-        //"update-member": { type: "string" }, // unused
-        //"start-application": { type: "string" }, // unused
-        //"reset-application": { type: "string" }, // unused
-        "complete-application": { type: "string" },
-        "revert-application": { type: "string" }
       }
     }
   }
@@ -111,7 +93,7 @@ export default class Config {
 
   public static load() {
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       fs.readFile(this.path, { encoding: "utf-8" }, (err: NodeJS.ErrnoException | null, data: string) => {
         if(err) {
           this.generate();

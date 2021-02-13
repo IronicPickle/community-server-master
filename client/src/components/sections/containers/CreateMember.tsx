@@ -31,14 +31,10 @@ const styles = (theme: Theme) => ({
 interface InputData {
   [key: string]: any;
   discordId: string;
-  inaraName: string;
-  inGameName: string;
 }
 
 interface InputValidation {
   discordId?: string;
-  inaraName?: string;
-  inGameName?: string;
 }
 
 interface Props {
@@ -126,44 +122,6 @@ class CreateMemberContainer extends Component<Props, State> {
                         className={classes.textField}
                       />
                       <FormHelperText>{validation.discordId}</FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item style={{marginTop: theme.spacing(1)}}>
-                    <FormControl
-                      error={!!validation.inaraName}
-                    >
-                      <TextField
-                        placeholder="Name on Inara.cz"
-                        label="Inara Name"
-                        type="string"
-                        name="inaraName"
-                        required={false}
-                        value={inputs.inaraName}
-                        onChange={this.onChange}
-                        InputProps={{ classes: { root: classes.colorWash } }}
-                        InputLabelProps={{ classes: { shrink: classes.colorWash } }}
-                        className={classes.textField}
-                      />
-                      <FormHelperText>{validation.inaraName}</FormHelperText>
-                    </FormControl>
-                  </Grid>
-                  <Grid item style={{marginTop: theme.spacing(1)}}>
-                    <FormControl
-                      error={!!validation.inGameName}
-                    >
-                      <TextField
-                        placeholder="Name In-Game"
-                        label="In-Game Name"
-                        type="string"
-                        name="inGameName"
-                        required={false}
-                        onChange={this.onChange}
-                        value={inputs.inGameName}
-                        InputProps={{ classes: { root: classes.colorWash } }}
-                        InputLabelProps={{ classes: { shrink: classes.colorWash } }}
-                        className={classes.textField}
-                      />
-                      <FormHelperText>{validation.inGameName}</FormHelperText>
                     </FormControl>
                   </Grid>
                   <Grid item style={{marginTop: theme.spacing(2)}}>
