@@ -63,6 +63,8 @@ class Profile extends Component<Props> {
     if(!memberData) return null;
     let highestRole: DiscordRole = getHighestRole(memberData);
 
+    document.title = `Lykos - ${memberData.discordName}`;
+
     return (
       <>
         <Container className={classes.mainContainer}>

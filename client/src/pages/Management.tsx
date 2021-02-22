@@ -18,6 +18,8 @@ class Management extends Component<Props> {
   render() {
     const { classes } = this.props;
 
+    document.title = "Lykos - Management";
+
     return (
       <>
         <Container className={classes.mainContainer}>

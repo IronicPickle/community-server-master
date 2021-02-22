@@ -22,7 +22,7 @@ class Index extends Component<Props> {
   render() {
     const { classes } = this.props;
 
-    document.title = "Lykos - Home"
+    document.title = "Lykos - Home";
 
     return (
       <>

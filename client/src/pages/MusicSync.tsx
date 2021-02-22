@@ -198,6 +198,8 @@ class MusicSync extends Component<PropsI, StateI> {
     const { classes } = this.props;
     const { instanceData } = this.state;
 
+    document.title = "Lykos - MusicSync";
+
     return (
       <>
         <Container className={classes.mainContainer}>
