@@ -1,21 +1,21 @@
 import React, { Component } from "react";
 import { Theme, Typography, withStyles, Card, CardContent, Divider, Tooltip } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
 import { DBMemberDataExtended } from "../../../http_utils/HTTPAuth";
 import { DiscordRole } from "../../../http_utils/HTTPMembers";
 
 const styles = (theme: Theme) => ({
-  profileCard: {
+  mainContainer: {
     backgroundColor: theme.palette.primary.dark
-  }, profileCardDivider: {
-    backgroundColor: theme.palette.secondary.dark,
+  },
+  divider: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(3)
   },
 });
 
 interface Props {
-  classes: Classes;
+  classes: ClassNameMap;
   memberData: DBMemberDataExtended;
 }
 
@@ -37,16 +37,16 @@ class DiscordInfo extends Component<Props> {
 
     return (
       <>
-        <Card className={classes.profileCard}>
+        <Card className={classes.mainContainer} elevation={12}>
           <CardContent>
             <Typography variant="h6" component="h6" align="center" noWrap
             >Discord Information</Typography>
-            <Divider className={classes.profileCardDivider} variant="middle" />
+            <Divider className={classes.divider} variant="middle" />
             <Typography variant="caption" component="p" align="center" noWrap
             >Discord Name</Typography>
             <Typography variant="body1" component="p" align="center" noWrap
             >{memberData.discordName}</Typography>
-            <Divider className={classes.profileCardDivider} variant="middle" />
+            <Divider className={classes.divider} variant="middle" />
             <Typography variant="caption" component="p" align="center" noWrap
             >Discord Roles</Typography>
             <Tooltip title={discordRolesString} aria-label="discord roles">

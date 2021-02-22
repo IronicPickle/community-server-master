@@ -1,23 +1,30 @@
 import React, { Component } from "react";
-import { withStyles, Theme, Container, Paper, Toolbar, Grid, Typography, IconButton, Tooltip } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
-import { GlobalContext } from "../utils/contexts";
-import VisibilityIcon from "@material-ui/icons/Visibility";
+import { Theme, Container, Paper, Toolbar, Grid, Typography, Divider} from "@material-ui/core";
+import { globalContext } from "../utils/contexts";
+import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import GenericInfo from "../components/sections/profile/GenericInfo";
 import DiscordInfo from "../components/sections/profile/DiscordInfo";
 import { DBMemberDataExtended } from "../http_utils/HTTPAuth";
 import { DiscordRole, DBMemberData } from "../http_utils/HTTPMembers";
+import withStyles, { ClassNameMap } from "@material-ui/core/styles/withStyles";
 
 const styles = (theme: Theme) => ({
   mainContainer: {
-    minWidth: 800,
-    marginTop: theme.spacing(12),
-    marginBottom: theme.spacing(8)
-  },
+    marginTop: theme.spacing(10),
+    minHeight: theme.spacing(40),
 
-  profileContainer: {
-    position: "relative" as "relative",
-    marginTop: theme.spacing(1)
+    paddingRight: theme.spacing(4),
+    paddingLeft: theme.spacing(4),
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4)
+  },
+  titleContainer: {
+    paddingTop: theme.spacing(2),
+    marginBottom: theme.spacing(3)
+  },
+  titleIcon: {
+    width: theme.spacing(6),
+    height: theme.spacing(6)
   },
 
   profileGrid: {
@@ -32,12 +39,12 @@ const styles = (theme: Theme) => ({
 });
 
 interface Props {
-  classes: Classes;
+  classes: ClassNameMap;
   theme: Theme;
 }
 
 class Profile extends Component<Props> {
-  static contextType = GlobalContext;
+  static contextType = globalContext;
 
   constructor(props: Props) {
     super(props);
@@ -60,19 +67,26 @@ class Profile extends Component<Props> {
       <>
         <Container className={classes.mainContainer}>
           <Paper>
-            <Toolbar>
-              <div>
-                <Typography variant="h6" component="h6" align="center" noWrap
-                  >Application Progress</Typography>
-              </div>
-              <IconButton onClick={this.onViewRequests} color="secondary">
-                <Tooltip title="View Revision Requests" aria-label="review revision messages">
-                  <VisibilityIcon color="secondary"/>
-                </Tooltip>
-              </IconButton>
+            <Toolbar className={classes.titleContainer}>
+              <Grid container justify="flex-start">
+                <Toolbar style={{ padding: 0 }}>
+                  <AccountBoxIcon className={classes.titleIcon}/>
+                </Toolbar>
+              </Grid>
+              <Grid container justify="center">
+                <Toolbar style={{ padding: 0 }}>
+                  <Typography
+                    variant="h4"
+                    component="h1"
+                    align="center"
+                    noWrap
+                  >Profile
+                  </Typography>
+                </Toolbar>
+              </Grid>
+              <Grid container justify="flex-end" />
             </Toolbar>
-          </Paper>
-          <Paper className={classes.profileContainer}>
+            <Divider />
             <Container>
               <Grid container className={classes.profileGrid} justify="flex-start" wrap="nowrap">
                 <Grid item className={classes.profileGridLeft}>

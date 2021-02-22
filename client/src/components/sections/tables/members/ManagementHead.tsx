@@ -1,19 +1,19 @@
 import { Theme, TableHead, TableRow, TableCell, TableSortLabel, withStyles } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import { Component } from "react";
 import React from "react";
 import { Column } from "./ManagementTable";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
 
 
 const styles = (theme: Theme) => ({
   cell: {
-    borderColor: theme.palette.secondary.main,
-    borderWidth: 2
+    borderWidth: 2,
+    width: "33.3%"
   }
 });
   
 interface PropsI {
-  classes: Classes;
+  classes: ClassNameMap;
   theme: Theme;
   columns: Column[];
   filters: { [key: string]: any };
@@ -29,17 +29,20 @@ class ManagementHead extends Component<PropsI> {
       <>
         <TableHead>
           <TableRow key="head">
-            <TableCell key="avatars" align="center" className={classes.cell}></TableCell>
             {
               columns.map(column => {
                 return (
-                  <TableCell key={column.name} align="center" className={classes.cell}>
-                    <TableSortLabel
-                      active={filters.sortKey === column.name}
-                      direction={(filters.sortDirection === -1) ? "desc" : "asc"}
-                      onClick={onSortButtonClick(column.name)}
-                      hideSortIcon={true}
-                    >{column.title}</TableSortLabel>
+                  <TableCell key={column.name} align="center" variant="head" className={classes.cell}>
+                    {
+                      (column.sortable) ?
+                        <TableSortLabel
+                          active={filters.sortKey === column.name}
+                          direction={(filters.sortDirection === -1) ? "desc" : "asc"}
+                          onClick={onSortButtonClick(column.name)}
+                        >{column.title}</TableSortLabel>
+                      :
+                        <TableSortLabel hideSortIcon={true}>{column.title}</TableSortLabel>
+                    }
                   </TableCell>
                 )
               })

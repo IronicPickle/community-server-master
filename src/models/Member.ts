@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-export interface MembersI extends mongoose.Document {
+export interface Member extends mongoose.Document {
+  [key: string]: any;
   _id: mongoose.Types.ObjectId;
   discordId: string;
   discordName: string;
@@ -10,7 +11,7 @@ export interface MembersI extends mongoose.Document {
   joinData: Date;
 }
 
-const membersSchema = new mongoose.Schema({
+const memberSchema = new mongoose.Schema({
   discordId: {
     type: String,
     require: true
@@ -38,4 +39,4 @@ const membersSchema = new mongoose.Schema({
   }
 }, {collection: "members"});
 
-export default mongoose.model<MembersI>("Members", membersSchema);
+export default mongoose.model<Member>("Member", memberSchema);

@@ -6,11 +6,15 @@
     "@material-ui/core": "^4.9.10",
     "@material-ui/icons": "^4.5.1",
     "@material-ui/lab": "^4.0.0-alpha.49",
+    "gamedig": "^2.0.27",
+    "markdown-it": "^12.0.4",
     "moment": "^2.24.0",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
-    "react-scripts": "3.2.0",
-    "socket.io-client": "^2.3.0"
+    "react-scripts": "^3.4.4",
+    "react-youtube": "^7.13.1",
+    "socket.io-client": "^3.1.1",
+    "youtube": "^0.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -35,12 +39,15 @@
   },
   "devDependencies": {
     "@material-ui/types": "^4.1.1",
+    "@types/gamedig": "^2.0.1",
     "@types/http-proxy-middleware": "^0.19.3",
+    "@types/markdown-it": "^12.0.1",
     "@types/moment": "^2.13.0",
     "@types/react": "16.9.9",
     "@types/react-dom": "16.9.2",
     "@types/react-router-dom": "^5.1.4",
-    "@types/socket.io-client": "^1.4.32",
+    "@types/socket.io-client": "^1.4.35",
+    "@types/youtube": "^0.0.41",
     "http-proxy-middleware": "^1.0.4"
   }
 }

@@ -1,12 +1,13 @@
 import React, { Component, ChangeEvent } from "react";
 import { Theme, withStyles, Table, TablePagination, Paper, Toolbar, Typography, Grid } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import ManagementHead from "./ManagementHead";
 import ManagementBody from "./ManagementBody";
 import ManagementTitle from "./ManagementTitle";
-import { GlobalContext } from "../../../../utils/contexts";
+import { globalContext } from "../../../../utils/contexts";
 import HTTPMembers, { QueryOptions, DBMemberData } from "../../../../http_utils/HTTPMembers";
 import ErrorOutlineIcon from "@material-ui/icons/ErrorOutline";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
+import CreateMember from "../../containers/CreateMember";
 
 const styles = (theme: Theme) => ({
   tableContainer: {
@@ -18,7 +19,7 @@ const styles = (theme: Theme) => ({
 export type IconType = "edit" | "complete" | "revert" | "request" | "requests";
   
 interface Props {
-  classes: Classes;
+  classes: ClassNameMap;
   theme: Theme;
 }
 
@@ -30,11 +31,11 @@ interface State {
   searchQuery: string;
   currentPage: number;
   rowsPerPage: number;
-  stage?: 0 | 1 | 2 | 3;
+  createMemberState: boolean;
 }
 
 class ManagementTable extends Component<Props, State> {
-  static contextType = GlobalContext;
+  static contextType = globalContext;
 
   constructor(props: Readonly<Props>) {
     super(props);
@@ -45,20 +46,21 @@ class ManagementTable extends Component<Props, State> {
       sortDirection: 1,
       searchQuery: "",
       currentPage: 0,
-      rowsPerPage: 10
+      rowsPerPage: 10,
+      createMemberState: false
     }
 
     this.updateTable = this.updateTable.bind(this);
 
-    this.onCheckboxChange = this.onCheckboxChange.bind(this);
-    this.onIconButtonClick = this.onIconButtonClick.bind(this);
     this.onSortButtonClick = this.onSortButtonClick.bind(this);
     this.onSearchBarChange = this.onSearchBarChange.bind(this);
     this.onSearchBarSubmit = this.onSearchBarSubmit.bind(this);
-    this.onStageChange = this.onStageChange.bind(this);
 
     this.onPageChange = this.onPageChange.bind(this);
     this.onRowsPerPageChange = this.onRowsPerPageChange.bind(this);
+
+    this.openCreateMember = this.openCreateMember.bind(this);
+    this.createMemberClose = this.createMemberClose.bind(this);
   }
 
   componentDidMount() {
@@ -73,39 +75,13 @@ class ManagementTable extends Component<Props, State> {
       sortKey: this.state.sortKey,
       sortDirection: this.state.sortDirection,
       snipStart: this.state.currentPage * this.state.rowsPerPage,
-      snipLimit: this.state.rowsPerPage,
-      stage: this.state.stage
+      snipLimit: this.state.rowsPerPage
     }
     this.context.toggleLoader(true);
     const res = await HTTPMembers.query(queryData);
     this.context.toggleLoader(false);
     if(!res.data) return;
     this.setState({ rows: res.data.members, count: res.data.count });
-  }
-
-  onCheckboxChange(rowId: number, columnName: string) {
-    return () => {
-      var rows = this.state.rows;
-      const row = this.state.rows[rowId];
-      if(row && !row.confirmedByAdmiralty) {
-        row[columnName] = !row[columnName];
-        rows[rowId] = row;
-        this.setState({rows});
-      }
-    }
-  }
-
-  onIconButtonClick(iconType: IconType, _id: string) {
-    return () => {
-      this.iconMethods[iconType](_id);
-    }
-  }
-
-  private iconMethods: { [key: string]: (_id: string) => any } = {
-    /*edit: (_id: string) => {
-      const row = this.state.rows.find((row => row._id === _id));
-      this.context.toggleContainer("editMember", true, () => { this.updateTable(); }, { ...row });
-    }*/
   }
 
   onSortButtonClick(columnName: string) {
@@ -129,14 +105,6 @@ class ManagementTable extends Component<Props, State> {
     this.updateTable();
   }
 
-  onStageChange(stage?: 0 | 1 | 2 | 3) {
-    return () => {
-      this.setState({ stage }, () => {
-        this.updateTable();
-      });
-    }
-  }
-
   onPageChange(x: any, pageNumber: number) {
     this.setState({ currentPage: pageNumber }, () => {
       this.updateTable();
@@ -150,22 +118,30 @@ class ManagementTable extends Component<Props, State> {
     });
     
   }
+
+  openCreateMember() {
+    this.setState({ createMemberState: true });
+  }
+
+  createMemberClose() {
+    this.updateTable();
+    this.setState({ createMemberState: false });
+  }
     
   render() {
     const { classes, theme } = this.props;
-    const { rows, count, sortKey, sortDirection, currentPage, rowsPerPage, stage } = this.state;
+    const { rows, count, sortKey, sortDirection, currentPage, rowsPerPage, createMemberState } = this.state;
 
     const filteredColumn = tableColumns.find((column: Column) => column.name === sortKey);
     
     return (
       <>
+        <CreateMember state={createMemberState} onClose={this.createMemberClose} />
         <ManagementTitle
           filteredColumn={filteredColumn}
-          stage={stage}
           onSearchBarChange={this.onSearchBarChange}
           onSearchBarSubmit={this.onSearchBarSubmit}
-          onStageChange={this.onStageChange}
-          updateTable={this.updateTable}
+          openCreateMember={this.openCreateMember}
         />
         <Paper className={classes.tableContainer}>
         {
@@ -191,27 +167,25 @@ class ManagementTable extends Component<Props, State> {
                 <ManagementBody
                   columns={tableColumns}
                   rows={JSON.parse(JSON.stringify(rows))}
-                  onCheckboxChange={this.onCheckboxChange}
-                  onIconButtonClick={this.onIconButtonClick}
                 />
               </Table>
               <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={count}
-              rowsPerPage={rowsPerPage}
-              page={currentPage}
-              backIconButtonProps={{
-                "aria-label": "previous page",
-              }}
-              nextIconButtonProps={{
-                "aria-label": "next page",
-              }}
-              onChangePage={this.onPageChange}
-              onChangeRowsPerPage={this.onRowsPerPageChange}
-            />
-          </>
-        }
+                rowsPerPageOptions={[5, 10, 25]}
+                component="div"
+                count={count}
+                rowsPerPage={rowsPerPage}
+                page={currentPage}
+                backIconButtonProps={{
+                  "aria-label": "previous page",
+                }}
+                nextIconButtonProps={{
+                  "aria-label": "next page",
+                }}
+                onChangePage={this.onPageChange}
+                onChangeRowsPerPage={this.onRowsPerPageChange}
+              />
+            </>
+          }
         </Paper>
       </>
     )
@@ -221,13 +195,13 @@ class ManagementTable extends Component<Props, State> {
 export interface Column {
   name: string;
   title: string;
-  isBool?: boolean;
-  disabled?: boolean;
+  sortable: boolean;
 }
 
 const tableColumns: Column[] = [
-  { name: "discordName", title: "Discord Name" },
-  { name: "joinDate", title: "Joined" }
+  { name: "avatar", title: "Avatar", sortable: false },
+  { name: "discordName", title: "Discord Name", sortable: true },
+  { name: "joinDate", title: "Joined", sortable: true }
 ]
 
 

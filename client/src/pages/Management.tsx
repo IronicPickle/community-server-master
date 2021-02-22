@@ -1,18 +1,17 @@
 import React, { Component } from "react";
 import { withStyles, Theme, Container } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 import ManagementTable from "../components/sections/tables/members/ManagementTable";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
 
 const styles = (theme: Theme) => ({
   mainContainer: {
-    minWidth: 1000,
     marginTop: theme.spacing(12),
-    marginBottom: theme.spacing(8)
+    paddingBottom: theme.spacing(8)
   }
 });
 
 interface Props {
-  classes: Classes;
+  classes: ClassNameMap;
 }
 
 class Management extends Component<Props> {

@@ -9,15 +9,21 @@ interface BackendConfigSchema {
   port: number,
   proxy: boolean,
   companion: {
-    url: string,
-    token: string | null
+    url: string
   },
   discord: {
     clientId: string | null,
     clientSecret: string | null
   },
+  musicbot: {
+    url: string | null,
+    username: string | null,
+    password: string | null,
+    botId: string | null
+  },
   dbUrl: string,
-  sessionSecret: string | null
+  sessionSecret: string | null,
+  token: string | null
 }
 
 const defaultBackendConfig: BackendConfigSchema = {
@@ -26,15 +32,21 @@ const defaultBackendConfig: BackendConfigSchema = {
   port: 8080,
   proxy: false,
   companion: {
-    url: "http://localhost:8081",
-    token: null
+    url: "http://localhost:8081"
   },
   discord: {
     clientId: null,
     clientSecret: null
   },
+  musicbot: {
+    url: null,
+    username: null,
+    password: null,
+    botId: null
+  },
   dbUrl: "mongodb://localhost/communityDB",
-  sessionSecret: null
+  sessionSecret: null,
+  token: null
 }
 
 export let backendConfig: BackendConfigSchema = JSON.parse(JSON.stringify(defaultBackendConfig));
@@ -60,8 +72,18 @@ const backendConfigSchema: Schema = {
         clientSecret: { type: [ "string", "null" ] }
       }
     },
+    musicbot: {
+      type: "object",
+      properties: {
+        url: { type: [ "string", "null" ] },
+        username: { type: [ "string", "null" ] },
+        password: { type: [ "string", "null" ] },
+        botId: { type: [ "string", "null" ] }
+      }
+    },
     dbUrl: { type: "stirng" },
-    sessionSecret: {  type: [ "string", "null" ] }
+    sessionSecret: { type: [ "string", "null" ] },
+    token: { type: [ "string", "null" ] }
   }
 }
 

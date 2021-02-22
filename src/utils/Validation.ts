@@ -1,9 +1,10 @@
-import Members from "../models/Members";
+import { Server } from "http";
+import Members from "../models/Member";
+import { serverTypes } from "../models/Server";
 
 export default class Validation {
 
   public static async discordId(discordId?: string): Promise<string> {
-
     let err = "";
     if(typeof discordId === "string") {
       if(discordId.length !== 18 || !(/[\d]{18}/g).test(discordId)) {
@@ -16,109 +17,117 @@ export default class Validation {
     }
   
     return err;
-
   }
 
-  public static inaraName(inaraName?: string): string {
-
+  public static postTitle(text?: string): string {
     let err = "";
-    if(typeof inaraName === "string") {
-      if(inaraName.length > 500) {
-        err = "Inara Name must not exceed 500 chracters";
-      }
-    }
-
-    return err;
-
-  }
-
-  public static inGameName(inGameName?: string): string {
-
-    let err = "";
-    if(typeof inGameName === "string") {
-      if(inGameName.length > 500) {
-        err = "In-Game Name must not exceed 500 chracters";
-      }
-    }
-  
-    return err;
-
-  }
-
-  public static joinedSquadron(joinedSquadron?: boolean): string {
-
-    let err = "";
-    if(typeof joinedSquadron !== "boolean") {
-      err = "Joined Squadron is invalid";
-    }
-  
-    return err;
-
-  }
-
-  public static joinedInaraSquadron(joinedInaraSquadron?: boolean): string {
-
-    let err = "";
-    if(typeof joinedInaraSquadron !== "boolean") {
-      err = "Joined Inara Squadron is invalid";
-    }
-  
-    return err;
-
-  }
-
-  public static message(message?: string): string {
-
-    let err = "";
-    if(typeof message === "string") {
-      if(message.length < 10) {
-        err = "Revision Message must be at least 10 characters";
-      } else if(message.length > 500) {
-        err = "Revision Message must not exceed 500 chracters";
+    if(typeof text === "string") {
+      if(text.length < 5) {
+        err = "News Post titles must be at least 5 characters";
+      } else if(text.length > 100) {
+        err = "News Post titles must not exceed 100 chracters";
       }
     } else {
-      err = "Revision Message is invalid";
+      err = "News Post is invalid";
     }
 
     return err;
-
   }
 
-  public static description(description?: string): string {
-
+  public static postBody(text?: string): string {
     let err = "";
-    if(typeof description === "string") {
-      if(description.length < 10) {
-        err = "Mission Description must be at least 10 characters";
-      } else if(description.length > 1024) {
-        err = "Mission Description must not exceed 1024 chracters";
+    if(typeof text === "string") {
+      if(text.length < 10) {
+        err = "News Posts must be at least 10 characters";
+      } else if(text.length > 10000) {
+        err = "News Posts must not exceed 1000 chracters";
       }
     } else {
-      err = "Mission Description is invalid";
+      err = "News Post is invalid";
     }
 
     return err;
-
   }
 
-  public static objectives(objectives?: string[]): string[] {
+  public static serverType(type?: string): string {
+    let err = "";
+    if(type != null) {
+      if(!serverTypes.find(serverType => serverType.type === type)) {
+        err = "Server Type not found";
+      }
+    } else {
+      err = "Server Type is invalid";
+    }
+  
+    return err;
+  }
 
-    let err: string[] = [];
-    if(typeof objectives === "object") {
-      for(const i in objectives) {
-        const objective = objectives[i];
-        if(objective.length < 10) {
-          err[i] = `Mission Objectives must be at least 10 characters`;
-        } else if(objective.length > 500) {
-          err[i] = `Mission Objectives must not exceed 500 chracters`;
+  public static serverName(text?: string): string {
+    let err = "";
+    if(typeof text === "string") {
+      if(text.length < 5) {
+        err = "Server Name must be at least 5 characters";
+      } else if(text.length > 50) {
+        err = "Server Name must not exceed 100 chracters";
+      }
+    } else {
+      err = "Server Name is invalid";
+    }
+
+    return err;
+  }
+
+  public static serverDescription(text?: string): string {
+    let err = "";
+    if(typeof text === "string") {
+      if(text.length < 5) {
+        err = "Server Description must be at least 5 characters";
+      } else if(text.length > 100) {
+        err = "Server Description must not exceed 100 chracters";
+      }
+    } else {
+      err = "Server Description is invalid";
+    }
+
+    return err;
+  }
+
+  public static serverAddress(text?: string): string {
+    let err = "";
+    if(typeof text === "string") {
+      if(text.length < 5) {
+        err = "Server Address must be at least 5 characters";
+      } else if(text.length > 200) {
+        err = "Server Address must not exceed 200 chracters";
+      }
+    } else {
+      err = "Server Address is invalid";
+    }
+
+    return err;
+  }
+
+  public static serverPort(text?: string): string {
+    console.log(text)
+    let err = "";
+    if(typeof text === "string") {
+      if(text.length > 0) {
+        const port = parseInt(text);
+        if(!isNaN(port)) {
+          if(port < 0) {
+            err = "Server Port can not be less than 0";
+          } else if(port > 65535) {
+            err = "Server Port can not be greater than 65535";
+          }
+        } else {
+          err = "Server Port is Invalid";
         }
       }
     } else {
-      err[0] = "Mission Objectives are invalid";
+      err = "Server Port is Invalid";
     }
 
     return err;
-
   }
 
 }

@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import expressSession, { SessionOptions } from "express-session";
+import expressSession from "express-session";
 import path from "path";
 import { Express } from "express-serve-static-core";
 import routes from "./routes";
@@ -13,12 +13,16 @@ import csurf from "csurf";
 import fs from "fs";
 import { logger } from "../app";
 import { backendConfig } from "../utils/BackendConfig";
+import { MusicSync } from "./socketIo/namespaces/MusicSync";
+import socketIo from "socket.io";
+import socketIoExpressSession from "express-socket.io-session";
 
 export default class NodeServer {
   public port: number;
 
   private express: Express;
-  private server: http.Server;
+  private httpServer: http.Server;
+  private socketServer: socketIo.Server;
   private publicPath: string;
 
   constructor() {
@@ -27,7 +31,8 @@ export default class NodeServer {
     this.port = backendConfig.port;
 
     this.express = express();
-    this.server = http.createServer(this.express);
+    this.httpServer = new http.Server(this.express);
+    this.socketServer = new socketIo.Server(this.httpServer);
     
     this.publicPath = path.join(__dirname, (environment === "production") ? "../../client/build" : "../../client/public" );
     this.express.use(express.static(this.publicPath, { index: false }));
@@ -40,17 +45,22 @@ export default class NodeServer {
 
     const MongoDBStore = connectMongoDbSession(expressSession);
     const Store = new MongoDBStore({ uri: backendConfig.dbUrl, collection: "sessions" });
-    const session: SessionOptions = {
+    const sessionMiddleware = expressSession({
       secret: backendConfig.sessionSecret,
       resave: true,
       saveUninitialized: true,
       cookie: { secure: environment === "production", maxAge: 1000 * 60 * 60 * 24 * 7 * 4 /* 4 weeks */ },
       store: Store
-    }
+    });
     if(backendConfig.proxy) this.express.set("trust proxy", 1);
-    this.express.use(expressSession(session));
+    
+    this.express.use(sessionMiddleware);
     this.express.use(passport.initialize());
     this.express.use(passport.session());
+    
+    this.socketServer.of("/musicsync").use(socketIoExpressSession(sessionMiddleware, {
+      autoSave:true
+    }));
   }
 
   start() {
@@ -61,15 +71,20 @@ export default class NodeServer {
       const express = this.express;
       const port = this.port;
       
-      this.server = this.server.listen(port);
+      this.socketServer = this.socketServer.listen(this.httpServer);
+      this.httpServer = this.httpServer.listen(port);
 
+      // Express routes
       express.all("*", (req: Request, res: Response, next: NextFunction) => {
         logger.http(`[${req.method}] ${req.url} from ${req.ip}`);
         return next();
       });
+      
+      // Socket namespaces
+      new MusicSync(this.httpServer, this.socketServer);
 
       for(const i in routes) {
-        express.use(i, routes[i]);
+        express.use(i, routes[i](this.httpServer, this.socketServer));
         logger.info(`[Node] Registered route '${i}'`);
       }
 
@@ -104,11 +119,11 @@ export default class NodeServer {
 
       const discordStrategy = new DiscordStrategy();
       discordStrategy.register().then(() => {
-        passport.serializeUser(function(user, done) {
+        passport.serializeUser(function(user: Express.User, done) {
           done(null, user);
         });
         
-        passport.deserializeUser(function(user, done) {
+        passport.deserializeUser(function(user: Express.User, done) {
           done(null, user);
         });
         logger.info("[Passport] Discord OAuth initialised");
@@ -120,5 +135,6 @@ export default class NodeServer {
       });
       
     });
+
   }
 }

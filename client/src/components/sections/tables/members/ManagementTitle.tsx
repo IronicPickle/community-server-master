@@ -1,14 +1,26 @@
-import { Theme, withStyles, Toolbar, Typography, Grid, TextField, Paper, IconButton, Tooltip, Divider, Switch } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
+import { Theme, withStyles, Toolbar, Typography, Grid, TextField, Paper, IconButton, Tooltip, Divider} from "@material-ui/core";
 import { Component, ChangeEvent, KeyboardEvent } from "react";
 import React from "react";
 import AddCircleOutlineIcon from "@material-ui/icons/AddCircleOutline";
-import { GlobalContext } from "../../../../utils/contexts";
+import { globalContext } from "../../../../utils/contexts";
 import { Column } from "./ManagementTable";
 import { DBMemberDataExtended } from "../../../../http_utils/HTTPAuth";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
+import ListIcon from '@material-ui/icons/List';
 
 
 const styles = (theme: Theme) => ({
+  titleContainer: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2)
+  },
+  titleIcon: {
+    width: theme.spacing(6),
+    height: theme.spacing(6)
+  },
+  title: {
+    marginLeft: theme.spacing(4)
+  },
   createMemberButton: {
     marginRight: theme.spacing(1)
   }, searchBar: {
@@ -16,28 +28,20 @@ const styles = (theme: Theme) => ({
   }, divider: {
     backgroundColor: theme.palette.secondary.dark,
     height: theme.spacing(5)
-  },
-
-  colorWash: {
-    color: theme.palette.primary.contrastText + " !important",
-    "&:before": {borderColor: theme.palette.secondary.main},
-    "&:after": {borderColor: theme.palette.secondary.main}
   }
 });
   
 interface Props {
-  classes: Classes;
+  classes: ClassNameMap;
   theme: Theme;
   filteredColumn?: Column;
-  stage?: 0 | 1 | 2 | 3;
   onSearchBarChange: (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void;
   onSearchBarSubmit: () => void;
-  onStageChange: (stage?: 0 | 1 | 2 | 3) => () => void;
-  updateTable: () => void;
+  openCreateMember: () => void;
 }
 
 class ManagementTitle extends Component<Props> {
-  static contextType = GlobalContext;
+  static contextType = globalContext;
 
   constructor(props: Props) {
     super(props);
@@ -52,7 +56,7 @@ class ManagementTitle extends Component<Props> {
   }
 
   render() {
-    const { classes, filteredColumn, stage, onSearchBarChange, onStageChange, updateTable } = this.props;
+    const { classes, filteredColumn, onSearchBarChange, openCreateMember } = this.props;
 
     const searchWhitelist = [ "discordId", "discordName", "inaraName", "inGameName" ];
 
@@ -62,16 +66,24 @@ class ManagementTitle extends Component<Props> {
       <>
         <Paper>
           <Toolbar>
-            <Grid container justify="flex-start">
-              <Grid item>
-                <Toolbar style={{padding: 0}}>
-                  <Typography
-                    variant="h6"
-                    component="h6"
-                  >Squadron Management</Typography>
+            <Toolbar className={classes.titleContainer}>
+              <Grid container justify="flex-start">
+                <Toolbar style={{ padding: 0 }}>
+                  <ListIcon className={classes.titleIcon}/>
                 </Toolbar>
               </Grid>
-            </Grid>
+              <Grid container justify="center" className={classes.title}>
+                <Toolbar style={{ padding: 0 }}>
+                  <Typography
+                    variant="h4"
+                    component="h1"
+                    align="center"
+                    noWrap
+                  >User Management</Typography>
+                </Toolbar>
+              </Grid>
+              <Grid container justify="flex-end" />
+            </Toolbar>
             <Grid container justify="flex-end">
               <Grid item>
                 <Toolbar style={{padding: 0}}>
@@ -80,7 +92,7 @@ class ManagementTitle extends Component<Props> {
                       <IconButton
                         color="secondary"
                         aria-label="create member"
-                        onClick={() => { this.context.toggleContainer("createMember", true, () => { updateTable(); }) }}
+                        onClick={() => openCreateMember()}
                         className={classes.createMemberButton}
                       >
                         <Tooltip title="Create Member" aria-label="create member">
@@ -97,16 +109,6 @@ class ManagementTitle extends Component<Props> {
                     placeholder={(filteredColumn) ? filteredColumn.title : "N/A"}
                     onChange={onSearchBarChange}
                     onKeyDown={this.onSearchKeyDown}
-                    InputProps={{
-                      classes: {
-                        root: classes.colorWash
-                      }
-                    }}
-                    InputLabelProps={{
-                      classes: {
-                        shrink: classes.colorWash
-                      }
-                    }}
                     className={classes.searchBar}
                     disabled={!searchWhitelist.includes((filteredColumn) ? filteredColumn.name : "N/A")}
                   />

@@ -1,61 +1,50 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/core/styles";
-import { Grid, Typography, Paper, Theme, Button, Container, Slide, FormControl, FormHelperText, TextField } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
-import { GlobalContext } from "../../../utils/contexts";
-import HTTPMembers from "../../../http_utils/HTTPMembers";
+import { Grid, Typography, Theme, Button, Container, FormControl, FormHelperText, TextField, Dialog, DialogContent, Toolbar } from "@material-ui/core";
+import { globalContext } from "../../../utils/contexts";
+import HTTPMembers, { CreateOptions } from "../../../http_utils/HTTPMembers";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
+import { CreateErrors } from "../../../http_utils/HTTPMembers";
 
 const styles = (theme: Theme) => ({
   mainContainer: {
-    position: "fixed" as "fixed",
-    top: 0,
-    right: 0,
-    left: 0,
-    zIndex: theme.zIndex.tooltip,
-    padding: 0,
-    marginTop: "15vh",
-    maxHeight: "70vh"
-  }, subContainer: {
-    padding: theme.spacing(4)
-  }, textField: {
+    padding: theme.spacing(2)
+  },
+  title: {
+    marginBottom: theme.spacing(2)
+  },
+  subTitle: {
+    marginBottom: theme.spacing(4)
+  },
+  textField: {
     width: 250
   },
-
-  colorWash: {
-    color: theme.palette.primary.contrastText + " !important",
-    "&:before": {borderColor: theme.palette.secondary.main},
-    "&:after": {borderColor: theme.palette.secondary.main}
+  button: {
+    minWidth: theme.spacing(12),
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1)
   }
 });
 
-interface InputData {
-  [key: string]: any;
-  discordId: string;
-}
-
-interface InputValidation {
-  discordId?: string;
-}
-
 interface Props {
-  classes: Classes;
-  theme: Theme;
+  classes: ClassNameMap;
   state: boolean;
+  onClose: () => any;
 }
 interface State {
-  inputs: InputData;
-  validation: InputValidation;
+  inputs: CreateOptions;
+  validation: CreateErrors;
 }
 
-class CreateMemberContainer extends Component<Props, State> {
-  static contextType = GlobalContext;
+class CreateMember extends Component<Props, State> {
+  static contextType = globalContext;
 
-  private defaultInputs = { discordId: "", inaraName: "", inGameName: "" };
+  private defaultInputs = { discordId: "" };
   
   constructor(props: Props) {
     super(props);
     this.state = {
-      inputs: { ...this.defaultInputs },
+      inputs: JSON.parse(JSON.stringify(this.defaultInputs)),
       validation: {}
     }
     
@@ -80,34 +69,41 @@ class CreateMemberContainer extends Component<Props, State> {
     });
     if(res.errors) this.setState({ validation: res.errors });
     if(!res.success) return;
-    this.context.toggleBackdrop(false, false);
-    this.setState({ inputs: { ...this.defaultInputs } });
+    this.setState({ inputs: JSON.parse(JSON.stringify(this.defaultInputs)) });
+    this.props.onClose();
   }
 
   render() {
-    const { classes, theme, state } = this.props;
+    const { classes, state, onClose } = this.props;
     const { inputs, validation } = this.state;
     
     return (
       <>
-        <Slide direction="down" in={state} timeout={500}>
-          <Container maxWidth="sm" className={classes.mainContainer} >
-            <Paper className={classes.subContainer}>
-              <Grid container direction="column" alignItems="center">
-                <Grid item>
-                  <Typography variant="h4" component="h4"
-                  >Create Member</Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant="h6" component="h6"
-                  >Add a new member to the database</Typography>
-                </Grid>
-              </Grid>
+        <Dialog open={state} onClose={onClose}>
+          <DialogContent>
+            <Container className={classes.mainContainer} >
+
+              <Typography
+                align="center"
+                variant="h4"
+                component="h1"
+                className={classes.title}
+              >
+                Create Member
+              </Typography>
+              <Typography
+                align="center"
+                component="h2"
+                className={classes.subTitle}
+              >
+                Add a Member to the Database
+              </Typography>
+
               <form name="createMemberForm" onSubmit={this.onSubmit} onError={this.onSubmit}>
                 <Grid container direction="column" alignItems="center">
-                  <Grid item style={{marginTop: theme.spacing(1)}}>
+                  <Grid item>
                     <FormControl
-                      error={!!validation.discordId}
+                      error={validation.discordId != null}
                     >
                       <TextField
                         placeholder="18 Digit User ID"
@@ -117,37 +113,38 @@ class CreateMemberContainer extends Component<Props, State> {
                         required={true}
                         value={inputs.discordId}
                         onChange={this.onChange}
-                        InputProps={{ classes: { root: classes.colorWash } }}
-                        InputLabelProps={{ classes: { shrink: classes.colorWash } }}
                         className={classes.textField}
                       />
                       <FormHelperText>{validation.discordId}</FormHelperText>
                     </FormControl>
                   </Grid>
-                  <Grid item style={{marginTop: theme.spacing(2)}}>
-                    <Button
-                      type="submit"
-                      color="primary"
-                      size="small"
-                      variant="contained"
-                    >Continue</Button>
-                    <Button
-                      type="button"
-                      color="primary"
-                      size="small"
-                      variant="contained"
-                      onClick={() => { this.context.toggleBackdrop(false, true) }}
-                      style={{marginLeft: theme.spacing(2)}}
-                    >Cancel</Button>
+                  <Grid item className={classes.button}>
+                    <Toolbar disableGutters>
+                      <Button
+                        type="submit"
+                        color="secondary"
+                        size="small"
+                        variant="outlined"
+                        className={classes.button}
+                      >Continue</Button>
+                      <Button
+                        type="button"
+                        color="primary"
+                        size="small"
+                        variant="contained"
+                        onClick={() => { onClose() }}
+                        className={classes.button}
+                      >Cancel</Button>
+                    </Toolbar>
                   </Grid>
                 </Grid>
               </form>
-            </Paper>
-          </Container>
-        </Slide>
+            </Container>
+          </DialogContent>
+        </Dialog>
       </>
     )
   }
 }
 
-export default withStyles(styles, { withTheme: true })(CreateMemberContainer);
+export default withStyles(styles, { withTheme: true })(CreateMember);

@@ -8,13 +8,21 @@ export interface GetResponse<Data> {
   data?: Data;
 }
 
-export interface PostResponse<Errors> {
+export interface PostResponse<Data, Errors> {
   success: boolean;
   msg: string;
+  data?: Data;
   errors?: Errors;
 }
 
-export interface PatchResponse<Errors> {
+export interface PatchResponse<Data, Errors> {
+  success: boolean;
+  msg: string;
+  data?: Data;
+  errors?: Errors;
+}
+
+export interface DeleteResponse<Errors> {
   success: boolean;
   msg: string;
   errors?: Errors;
@@ -30,7 +38,7 @@ export default class HTTPMethods {
         simple: false,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${backendConfig.companion.token}`
+          "Authorization": `Bearer ${backendConfig.token}`
         }
       });
       return Promise.resolve(JSON.parse(res));
@@ -40,7 +48,7 @@ export default class HTTPMethods {
     }
   }
 
-  public static async postRequest(path: string, body: { [key: string]: any }): Promise<PostResponse<any>> {
+  public static async postRequest(path: string, body: { [key: string]: any }): Promise<PostResponse<any, any>> {
     try {
       const res = await requestPromise({
         method: "POST",
@@ -48,7 +56,7 @@ export default class HTTPMethods {
         simple: false,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${backendConfig.companion.token}`
+          "Authorization": `Bearer ${backendConfig.token}`
         }, body: JSON.stringify(body)
       });
       return Promise.resolve(JSON.parse(res));
@@ -58,7 +66,7 @@ export default class HTTPMethods {
     }
   }
 
-  public static async patchRequest(path: string, body: { [key: string]: any }): Promise<PatchResponse<any>> {
+  public static async patchRequest(path: string, body: { [key: string]: any }): Promise<PatchResponse<any, any>> {
     try {
       const res = await requestPromise({
         method: "PATCH",
@@ -66,8 +74,26 @@ export default class HTTPMethods {
         simple: false,
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${backendConfig.companion.token}`
+          "Authorization": `Bearer ${backendConfig.token}`
         }, body: JSON.stringify(body)
+      });
+      return Promise.resolve(JSON.parse(res));
+    } catch(err) {
+      logger.error(err);
+      return Promise.resolve({ success: false, msg: "Couldn't connect to companion server" });
+    }
+  }
+
+  public static async deleteRequest(path: string): Promise<DeleteResponse<any>> {
+    try {
+      const res = await requestPromise({
+        method: "DELETE",
+        url: backendConfig.companion.url + path,
+        simple: false,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${backendConfig.token}`
+        }
       });
       return Promise.resolve(JSON.parse(res));
     } catch(err) {

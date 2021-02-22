@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy, Profile } from "passport-discord";
 import refresh from "passport-oauth2-refresh";
-import Members from "../models/Members";
+import Members from "../models/Member";
 import { backendConfig } from "../utils/BackendConfig";
 import { config } from "../utils/Config";
 

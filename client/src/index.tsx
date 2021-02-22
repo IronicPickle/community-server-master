@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import ReactDOM from "react-dom";
 import * as serviceWorker from "./serviceWorker";
 import { Route, BrowserRouter as Router, RouteComponentProps } from "react-router-dom";
-import { createMuiTheme, LinearProgress, withStyles, Box, Backdrop } from "@material-ui/core";
+import { createMuiTheme, withStyles } from "@material-ui/core";
 import { ThemeProvider } from "@material-ui/styles";
-import { GlobalContext, Containers, Notification } from "./utils/contexts";
+import { globalContext, Notification } from "./utils/contexts";
 import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
 
 import Index from "./pages/Index";
@@ -13,40 +13,11 @@ import Layout from "./components/sections/Layout";
 import RouteListener from "./components/utils/RouteListener";
 import HTTPAuth, { DBMemberDataExtended } from "./http_utils/HTTPAuth";
 import NotificationContainer from "./components/sections/containers/Notification";
-import CreateMemberContainer from "./components/sections/containers/CreateMember";
 import Profile from "./pages/Profile";
 //import Stats from "./pages/Stats";
-import mainTheme from "./themes/main";
-import { DBMemberData } from "./http_utils/HTTPMembers";
-
-const theme = createMuiTheme(mainTheme);
-
-const styles = () => ({
-  loadingBar: {
-    backgroundColor: theme.palette.secondary.main
-  }, "@global": {
-    "*::-webkit-scrollbar": {
-      width: "0.4em",
-      height: "0.4em"
-    },
-    "*::-webkit-scrollbar-track": {
-      "-webkit-box-shadow": `inset 0 0 6px ${theme.palette.primary.light}`
-    },
-    "*::-webkit-scrollbar-thumb": {
-      backgroundColor: theme.palette.primary.dark,
-      outline: `1px solid ${theme.palette.primary.dark}`
-    }
-  }
-});
-
-interface ContainerStates {
-  [key: string]: boolean;
-  createMember: boolean;
-}
-
-interface ContainerData {
-  [key: string]: any;
-}
+import { lightTheme, darkTheme } from "./utils/themes";
+import MusicSync from "./pages/MusicSync";
+import GlobalCSS from "./utils/GlobalCSS";
 
 type Props = {
   classes: Classes;
@@ -55,90 +26,49 @@ type Props = {
 interface State {
   loggedIn: boolean;
   memberData?: DBMemberDataExtended;
+  selectedTheme: "light" | "dark";
   csrfToken?: string;
   loading: boolean;
   currentRoute: string;
 
   clipboardValue: string;
 
-  backdropState: boolean;
-  backdropOnClose?: (isCancelled: boolean) => void;
   notificationState: boolean;
-  notificationData: Notification;
-
-  containerStates: ContainerStates;
-  containerData: ContainerData;
+  notificationData?: Notification;
 }
 
 class index extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
+    const cookies = this.parseCookies(document.cookie);
     this.state = {
       loggedIn: false,
       loading: false,
+      selectedTheme: cookies.theme || "dark",
       currentRoute: window.location.pathname,
       clipboardValue: "",
 
-
-      backdropState: false,
-      notificationState: false,
-      notificationData: { type: "success", message: "" },
-
-      containerStates: {
-        createMember: false,
-        editMember: false,
-        requestMember: false,
-        requestsMember: false
-      },
-      containerData: {}
+      notificationState: false
     }
 
     this.handleRouteChange = this.handleRouteChange.bind(this);
     this.toggleLoader = this.toggleLoader.bind(this);
-    this.toggleBackdrop = this.toggleBackdrop.bind(this);
     this.toggleNotification = this.toggleNotification.bind(this);
-    this.toggleContainer = this.toggleContainer.bind(this);
     this.copyToClipboard = this.copyToClipboard.bind(this);
+    this.toggleTheme = this.toggleTheme.bind(this);
   }
 
   handleRouteChange(route: string) {
     this.setState({currentRoute: route});
+    this.toggleLoader(false);
   }
 
   toggleLoader(state: boolean) {
     this.setState({loading: state});
   }
 
-  toggleBackdrop(state: boolean, isCancelled: boolean, backdropOnClose?: (isCancelled: boolean) => void) {
-    this.setState({ backdropState: state });
-    if(state) {
-      this.setState({ backdropOnClose });
-    } else {
-      if(this.state.backdropOnClose) this.state.backdropOnClose(isCancelled);
-    }
-  }
-
-  toggleNotification(state: boolean, data: Notification) {
+  toggleNotification(state: boolean, data?: Notification) {
     this.setState({ notificationState: state, notificationData: data });
-  }
-
-  toggleContainer(container: Containers, state: boolean, callback?: Function, data?: any) {
-    const containerAsString = container.toString();
-    const containerStates = this.state.containerStates;
-    containerStates[containerAsString] = state;
-    const containerData = this.state.containerData;
-    if(data) {
-      containerData[containerAsString] = data;
-    } else {
-      data = {};
-    }
-
-    this.setState({ containerStates, containerData });
-    this.toggleBackdrop(state, !state, (isCancelled: boolean) => {
-      containerStates[containerAsString] = false;
-      this.setState({ containerStates });
-      if(callback && !isCancelled) callback();
-    });
   }
 
   copyToClipboard(string: string) {
@@ -160,67 +90,95 @@ class index extends Component<Props, State> {
     this.setState({ loggedIn, memberData });
   }
 
+  toggleTheme(theme?: "light" | "dark") {
+    const oldTheme = this.state.selectedTheme;
+    if(theme == null) theme = (oldTheme === "light") ? "dark" : "light";
+    this.setState({ selectedTheme: theme });
+    const cookies = this.parseCookies(document.cookie);
+    cookies.theme = theme;
+    document.cookie = this.stringifyCookies(cookies);
+  }
+
+  parseCookies(cookie: string) {
+    if(cookie.length === 0) return {};
+    const cookiesArray = cookie.split("; ");
+    const cookies: { [key: string]: any } = {}
+    for(const i in cookiesArray) {
+      const [ key, value ] = cookiesArray[i].split("=");
+      cookies[key] = value;
+    }
+    return cookies;
+  }
+
+  stringifyCookies(cookies: { [key: string]: any }) {
+    let cookiesArray = [];
+    for(const i in cookies) {
+      cookiesArray.push(`${i}=${cookies[i]}`);
+    }
+    return cookiesArray.join("; ");
+  }
+
   render() {
-    const { classes } = this.props;
     const {
-      loggedIn, memberData,
-      backdropState, notificationState, notificationData, containerStates,
-      containerData, clipboardValue
+      loggedIn, memberData, selectedTheme,
+      notificationState, notificationData, clipboardValue
     } = this.state;
 
+    const theme = createMuiTheme((selectedTheme === "light") ? lightTheme : darkTheme);
+
     return (
-      <Router>
-        <ThemeProvider theme={theme} >
-          <GlobalContext.Provider value={{
-            loggedIn: loggedIn,
-            memberData: memberData,
-            toggleLoader: this.toggleLoader,
-            toggleBackdrop: this.toggleBackdrop,
-            toggleNotification: this.toggleNotification,
-            toggleContainer: this.toggleContainer,
-            copyToClipboard: this.copyToClipboard
-          }}>
-            <input id="clipboardInput" type="text" value={clipboardValue} readOnly={true} style={{ display: "none", position: "fixed" }} />
-            <Box
-              position="absolute"
-              width="100%"
-            >
-              <Box
-                position="absolute"
-                width="100%"
-                zIndex="tooltip"
-              >
-                {(this.state.loading) ? <LinearProgress variant="query" className={classes.loadingBar} /> : null}
-              </Box>
-              <Layout currentRoute={this.state.currentRoute}>
-                <RouteListener handleRouteChange={this.handleRouteChange}>
-                  <Route path="/" exact component={Index} />
-                  {
-                    (loggedIn && memberData) ?
+      <>
+        <input
+          id="clipboardInput"
+          type="text"
+          value={clipboardValue}
+          readOnly={true}
+          style={{ display: "none", position: "fixed" }}
+        />
+        <NotificationContainer
+          state={notificationState}
+          data={notificationData || {}}
+          onClose={() => this.setState({ notificationState: false })}
+        />
+        
+        <Router>
+          <ThemeProvider theme={theme} >
+            <GlobalCSS />
+            <globalContext.Provider value={{
+              loggedIn: loggedIn,
+              memberData: memberData,
+              selectedTheme: selectedTheme,
+              toggleTheme: this.toggleTheme,
+              toggleLoader: this.toggleLoader,
+              toggleNotification: this.toggleNotification,
+              copyToClipboard: this.copyToClipboard
+            }}>
+              <Layout currentRoute={this.state.currentRoute} loading={this.state.loading}>
+                <div style={{ position: "absolute" as "absolute", width: "100%", height: "100%" }}>
+                  <RouteListener handleRouteChange={this.handleRouteChange}>
+                    <Route path="/" exact component={Index} />
+                    { (loggedIn && memberData) &&
                       <>
                         { (memberData.webPerms["view-management-page"]) ?  <Route path="/management" exact component={Management} /> : null }
                         { /*(memberData.webPerms["view-stats-page"]) ?  <Route path="/stats" exact component={Stats} /> : */null }
                         { (memberData.webPerms["view-profile-page"]) ? <Route path="/profile" exact component={Profile} /> : null }
+                        { (memberData.webPerms["view-musicsync-page"]) ? <Route path="/musicsync" exact component={MusicSync} /> : null }
                       </>
-                    : null
-                  }
-                </RouteListener>
+                    }
+                  </RouteListener>
+                </div>
               </Layout>
-              <NotificationContainer state={notificationState} data={notificationData} onClose={() => { this.setState({ notificationState: false }); }} />
-
-              <CreateMemberContainer state={containerStates.createMember} />
-            </Box>
-            <Backdrop open={backdropState} onClick={() => { this.toggleBackdrop(false, true); }} style={{zIndex: theme.zIndex.modal}} />
-          </GlobalContext.Provider>
-        </ThemeProvider>
-      </Router>
+            </globalContext.Provider>
+          </ThemeProvider>
+        </Router>
+      </>
     )
   }
 }
 
 ReactDOM.render(
   React.createElement(
-    withStyles(styles, { withTheme: true }) (index)
+    withStyles({}, { withTheme: true }) (index)
   ), document.getElementById("root")
 );
 

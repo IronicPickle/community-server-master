@@ -33,7 +33,7 @@ logger.info("[Node] Initialising");
 Config.load().then(() => {
   BackendConfig.load().then(() => {
     if(!backendConfig.url) throw new Error("[Config] No public URL configured");
-    if(!backendConfig.companion.token) throw new Error("[Config] No companion token configured");
+    if(!backendConfig.token) throw new Error("[Config] No companion token configured");
 
     const environment = process.env.NODE_ENV;
     logger.info(`[Node] Environment: ${environment}`);
@@ -48,7 +48,8 @@ Config.load().then(() => {
 
     mongoose.connect(backendConfig.dbUrl, {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      useFindAndModify: false
     }).then(() => {
       logger.info(`[Mongoose] Connection created to: ${backendConfig.dbUrl}`);
     }).catch((err: Error) => {

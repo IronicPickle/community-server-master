@@ -1,4 +1,4 @@
-import HTTPMethods, { GetResponse, PostResponse, PatchResponse } from "./HTTPMethods";
+import HTTPMethods, { GetResponse, PostResponse } from "./HTTPMethods";
 
 export interface QueryOptions {
   [key: string]: any;
@@ -8,10 +8,10 @@ export interface QueryOptions {
   sortDirection?: 1 | 0 | -1;
   snipStart?: number;
   snipLimit?: number;
-  stage?: 0 | 1 | 2 | 3;
 }
 
 export interface DiscordRole {
+  [key: string]: any;
   color: number;
   createdTimestamp: number;
   deleted: boolean;
@@ -37,11 +37,13 @@ export interface DBMemberData {
 }
 
 export interface CreateOptions {
+  [key: string]: any;
   discordId: string;
 }
 
 export interface CreateErrors {
-  discordId: string;
+  [key: string]: any;
+  discordId?: string;
 }
 
 export interface QueryData {

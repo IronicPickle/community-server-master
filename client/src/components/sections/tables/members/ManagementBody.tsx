@@ -1,41 +1,40 @@
-import { Theme, TableRow, TableCell, withStyles, TableBody, Checkbox, IconButton, Tooltip, Avatar } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
+import { Theme, TableRow, TableCell, withStyles, TableBody, Checkbox, IconButton, Tooltip, Avatar, Grid } from "@material-ui/core";
 import { Component } from "react";
 import React from "react";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
-import { GlobalContext } from "../../../../utils/contexts";
+import { globalContext } from "../../../../utils/contexts";
 import { DBMemberData } from "../../../../http_utils/HTTPMembers";
-import { DBMemberDataExtended } from "../../../../http_utils/HTTPAuth";
-import { IconType, Column } from "./ManagementTable";
+import { Column } from "./ManagementTable";
 import { getHighestRole } from "../../../../pages/Profile";
 import moment from "moment";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
 
 
 const styles = (theme: Theme) => ({
   cell: {
-    borderColor: theme.palette.secondary.main,
     borderWidth: 1,
     wordWrap: "break-word" as "break-word",
-    maxWidth: theme.spacing(11),
+    maxWidth: theme.spacing(12),
   },
   cellContent: {
     maxHeight: theme.spacing(8),
     textOverflow: "ellipsis",
     overflow: "hidden" as "hidden"
   },
+  joinDate: {
+    color: theme.palette.secondary.main
+  }
 });
   
 interface Props {
-  classes: Classes;
+  classes: ClassNameMap;
   theme: Theme;
   columns: Column[];
   rows: DBMemberData[];
-  onCheckboxChange: (rowId: number, columnName: string) => () => void;
-  onIconButtonClick: (iconType: IconType, _id: string) => () => void;
 }
 
 class ManagementHead extends Component<Props> {
-  static contextType = GlobalContext;
+  static contextType = globalContext;
 
   constructor(props: Props) {
     super(props);
@@ -54,85 +53,40 @@ class ManagementHead extends Component<Props> {
   }
 
   render() {
-    const { classes, rows, columns, onCheckboxChange, onIconButtonClick } = this.props;
-    const processedRows = processRows(rows);
-    console.log(processedRows)
-
-    const memberData: DBMemberDataExtended = this.context.memberData;
-
+    const { classes, rows } = this.props;
     surfaceNested(rows);
 
     return (
       <>
         <TableBody>
           {
-            processedRows.map((row: DBMemberData) => {
+            rows.map((row: DBMemberData) => {
               const highestRole = getHighestRole(row);
               return (
                 <TableRow key={row._id}>
-                  <TableCell
-                    key={`avatars_${row._id}`}
-                    align="center"
-                    className={classes.cell}
-                  >
-                    <Tooltip title={row.discordName} placement="bottom" PopperProps={{ disablePortal: true }}>
-                      <Avatar alt={row.discordName} src={row.discordAvatar}
-                      >{row.discordName.charAt(0).toUpperCase()}</Avatar>
-                    </Tooltip>
+                  <TableCell key={`avatars_${row._id}`} align="center" variant="body" className={classes.cell}>
+                    <Grid container justify="center">
+                      <Tooltip title={row.discordName} placement="bottom" PopperProps={{ disablePortal: true }}>
+                        <Avatar alt={row.discordName} src={row.discordAvatar}
+                        >{row.discordName.charAt(0).toUpperCase()}</Avatar>
+                      </Tooltip>
+                    </Grid>
                   </TableCell>
-                  {
-                    columns.map((column: Column) => {
-                      return (
-                        <TableCell
-                          key={`${column.name}_${row._id}`}
-                          align="center"
-                          className={classes.cell}
-                        >
-                          {
-                            (column.name === "discordName") ?
-                              <>
-                                <span style={{
-                                  fontSize: 12,
-                                  color: `#${highestRole.color.toString(16)}`
-                                }}
-                                className={classes.cellContent}
-                                >
-                                  [{highestRole.name}]
-                                </span>
-                                <br/>
-                              </>
-                            : null
-                          } {
-                            (column.isBool) ?
-                              <Checkbox
-                                onChange={
-                                  (!column.disabled) ?
-                                    onCheckboxChange(rows.map(row1 => {
-                                      return row1._id;
-                                    }).indexOf(row._id), column.name)
-                                    : () => {}
-                                }
-                                value={(row[column.name]) ? row[column.name] : ""}
-                                checked={row[column.name]}
-                                disableRipple={row.confirmedByAdmiralty || column.disabled}
-                                disabled={true}
-                              />
-                            : <div className={classes.cellContent}>{row[column.name]}</div>
-                          } {
-                            (column.name === "discordName") ?
-                              <>
-                                <IconButton onClick={this.onCopy(row.discordId)} size="small" color="secondary">
-                                  <Tooltip title="Copy @ ID" aria-label="copy discord id">
-                                    <FileCopyIcon fontSize="small" color="secondary"/>
-                                  </Tooltip>
-                                </IconButton>
-                              </>
-                            : null
-                          }
-                        </TableCell>
-                      )
-                    })
-                  }
+                  <TableCell key={`discordName_${row._id}`} align="center" variant="body" className={classes.cell}>
+                    <span style={{ fontSize: 12, color: `#${highestRole.color.toString(16)}` }}
+                      className={classes.cellContent}
+                    >[{highestRole.name}]</span>
+                    <br/>{row.discordName}<br/>
+                    <IconButton onClick={this.onCopy(row.discordId)} size="small" color="secondary">
+                      <Tooltip title="Copy @ ID" aria-label="copy discord id">
+                        <FileCopyIcon fontSize="small" color="secondary"/>
+                      </Tooltip>
+                    </IconButton>
+                  </TableCell>
+                  <TableCell key={`joinDate_${row._id}`} align="center" variant="body" className={classes.cell}>
+                    <span>{ moment(row.joinDate).fromNow() }</span><br/>
+                    <span className={classes.joinDate}>{ moment(row.joinDate).format("hh:mm DD/MM/YYYY") }</span>
+                  </TableCell>
                 </TableRow>
               )
             })
@@ -157,15 +111,6 @@ const surfaceNested = (data: DBMemberData[]) => {
       }
     }
   }
-}
-
-const processRows = (rows: DBMemberData[]): DBMemberData[] => {
-  const processedRows: DBMemberData[] = [];
-  for(const i in rows) {
-    processedRows.push(rows[i]);
-    processedRows[i].joinDate = moment(processedRows[i].joinDate).format("hh:mm DD/MM/YYYY");
-  }
-  return processedRows;
 }
 
 export default withStyles(styles, { withTheme: true })(ManagementHead);

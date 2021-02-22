@@ -19,15 +19,15 @@ class NotificationContainer extends Component<Props> {
       <>
         <Snackbar
           anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
+            vertical: "bottom",
+            horizontal: "left",
           }}
           open={state}
-          autoHideDuration={hideDelay}
+          autoHideDuration={hideDelay || 2000}
           onClose={onClose}
         >
           <Alert elevation={6} variant="filled" severity={type}>
-            {message}
+            {message || ""}
           </Alert>
         </Snackbar>
       </>

@@ -18,6 +18,12 @@ export interface PatchResponse<Errors> {
   errors?: Errors;
 }
 
+export interface DeleteResponse<Errors> {
+  success: boolean;
+  msg: string;
+  errors?: Errors;
+}
+
 export default class HTTPMethods {
 
   public static async getRequest(path: string): Promise<GetResponse<any>> {
@@ -32,7 +38,7 @@ export default class HTTPMethods {
       });
       return Promise.resolve(JSON.parse(res));
     } catch(err) {
-      return Promise.resolve({ success: false, msg: "Couldn't connect to companion server" });
+      return Promise.resolve({ success: false, msg: "Couldn't connect to master server" });
     }
   }
 
@@ -51,7 +57,7 @@ export default class HTTPMethods {
       });
       return Promise.resolve(JSON.parse(res));
     } catch(err) {
-      return Promise.resolve({ success: false, msg: "Couldn't connect to companion server" });
+      return Promise.resolve({ success: false, msg: "Couldn't connect to master server" });
     }
   }
 
@@ -70,7 +76,25 @@ export default class HTTPMethods {
       });
       return Promise.resolve(JSON.parse(res));
     } catch(err) {
-      return Promise.resolve({ success: false, msg: "Couldn't connect to companion server" });
+      return Promise.resolve({ success: false, msg: "Couldn't connect to master server" });
+    }
+  }
+
+  public static async deleteRequest(path: string): Promise<DeleteResponse<any>> {
+    try {
+      const headers: { "Content-Type": string, "CSRF-TOKEN"?: string } = {
+        "Content-Type": "application/json"
+      }
+      if(process.env.NODE_ENV === "production") headers["CSRF-TOKEN"] = this.getCsrfToken();
+      const res = await requestPromise({
+        method: "DELETE",
+        url: `${window.location.protocol}//${window.location.host}${path}`,
+        simple: false,
+        headers
+      });
+      return Promise.resolve(JSON.parse(res));
+    } catch(err) {
+      return Promise.resolve({ success: false, msg: "Couldn't connect to master server" });
     }
   }
 

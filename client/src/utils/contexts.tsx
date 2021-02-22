@@ -3,22 +3,20 @@ import { DBMemberDataExtended } from "../http_utils/HTTPAuth";
 
 export interface Notification {
   type?: "success" | "info" | "warning" | "error";
-  message: string;
+  message?: string;
   hideDelay?: number;
 }
 
-export type Containers = [
-  "login" | "createMember" | "editMember" | "requestMember" | "requestsMember" | "createMission"
-]
+export type Containers = "login" | "createMember" | "editMember" | "requestMember" | "requestsMember" | "createMission"
 
-type GlobalContextProps = { 
+export type GlobalContext = { 
   loggedIn: boolean;
   memberData?: DBMemberDataExtended;
+  selectedTheme: "light" | "dark";
+  toggleTheme: (theme?: "light" | "dark") => void;
   toggleLoader: (state: boolean) => void;
-  toggleBackdrop: (state: boolean, isCancelled: boolean, backdropOnClose?: (isCancelled: boolean) => void) => void;
-  toggleNotification: (state: boolean, data: Notification) => void;
-  toggleContainer: (container: Containers, state: boolean, callback?: () => void, data?: any) => void;
+  toggleNotification: (state: boolean, data?: Notification) => void;
   copyToClipboard: (string: string) => void;
 }
 
-export const GlobalContext = React.createContext<Partial<GlobalContextProps>>({});
+export const globalContext = React.createContext<Partial<GlobalContext>>({});

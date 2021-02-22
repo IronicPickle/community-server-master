@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Theme, Typography, withStyles, Avatar } from "@material-ui/core";
-import { Classes } from "@material-ui/styles/mergeClasses/mergeClasses";
+import { ClassNameMap } from "@material-ui/core/styles/withStyles";
 import { DBMemberDataExtended } from "../../../http_utils/HTTPAuth";
 import { DiscordRole } from "../../../http_utils/HTTPMembers";
 
@@ -21,7 +21,7 @@ const styles = (theme: Theme) => ({
 });
 
 interface Props {
-  classes: Classes;
+  classes: ClassNameMap;
   memberData: DBMemberDataExtended;
   highestRole: DiscordRole;
 }

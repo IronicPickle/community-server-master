@@ -34,7 +34,8 @@ export type PermissionString =
     | 'MANAGE_NICKNAMES'
     | 'MANAGE_ROLES'
     | 'MANAGE_WEBHOOKS'
-    | 'MANAGE_EMOJIS';
+    | 'MANAGE_EMOJIS'
+    | "ANYONE";
 
 interface ConfigSchema {
   permissions: { [key: string]: PermissionString };
@@ -45,18 +46,46 @@ const defaultConfig: ConfigSchema = {
     "view-management-page": "MANAGE_MESSAGES",
     //"view-stats-page": "ADMINISTRATOR", //unused
     "view-profile-page": "SEND_MESSAGES",
+    "view-musicsync-page": "SEND_MESSAGES",
 
     "login": "SEND_MESSAGES",
 
     //"query-config": "ADMINISTRATOR", // unused
     "query-members": "MANAGE_MESSAGES",
     //"query-members-stats": "ADMINISTRATOR", // unused
+    "query-newsposts": "ANYONE",
+    "query-servers": "ANYONE",
+    "status-servers": "ANYONE",
 
     "create-member": "MANAGE_MESSAGES",
+    "create-newspost": "ADMINISTRATOR",
+    "create-server": "ADMINISTRATOR",
+    "create-serverpost": "ADMINISTRATOR",
+
+    "edit-newspost": "ADMINISTRATOR",
+    "edit-server": "ADMINISTRATOR",
+
+    "delete-newspost": "ADMINISTRATOR",
+    "delete-server": "ADMINISTRATOR",
 
     //"edit-config": "ADMINISTRATOR", // unused
-    "edit-member": "MANAGE_MESSAGES",
     //"update-member": "ADMINISTRATOR", // unused
+
+    "musicbot-queue": "CONNECT",
+    "musicbot-queue-playlist": "MANAGE_MESSAGES",
+    "musicbot-play": "MANAGE_MESSAGES",
+
+    "musicbot-skip": "MANAGE_MESSAGES",
+    "musicbot-skip-to": "MANAGE_MESSAGES",
+    "musicbot-restart": "MANAGE_MESSAGES",
+    "musicbot-clear": "MANAGE_MESSAGES",
+    "musicbot-splice": "MANAGE_MESSAGES",
+
+    "musicbot-vol": "MANAGE_MESSAGES",
+    "musicbot-unmute": "MANAGE_MESSAGES",
+    "musicbot-mute": "MANAGE_MESSAGES",
+
+    "musicbot-seek": "MANAGE_MESSAGES"
   }
 }
 
@@ -77,10 +106,34 @@ const configSchema: Schema = {
         //"query-config": { type: "string" }, // unused
         "query-members": { type: "string" },
         //"query-members-stats": { type: "string" }, // unused
+        "query-newsposts": { type: "string" },
+        "query-servers": { type: "string" },
+        "status-servers": { type: "string" },
 
         "create-member": { type: "string" },
+        "create-newspost": { type: "string" },
+        "create-server": { type: "string" },
+        "create-serverpost": { type: "string" },
 
-        //"edit-config": { type: "string" }, // unused
+        "edit-newspost": { type: "string" },
+        "edit-server": { type: "string" },
+
+        "delete-newspost": { type: "string" },
+        "delete-server": { type: "string" },
+
+        "musicbot-queue": { type: "string" },
+        "musicbot-queue-playlist": { type: "string" },
+        "musicbot-skip": { type: "string" },
+        "musicbot-skip-to": { type: "string" },
+        "musicbot-": { type: "string" },
+        "musicbot-restart": { type: "string" },
+        "musicbot-clear": { type: "string" },
+        "musicbot-splice": { type: "string" },
+        "musicbot-vol": { type: "string" },
+        "musicbot-unmute": { type: "string" },
+        "musicbot-mute": { type: "string" },
+        "musicbot-seek": { type: "string" },
+
       }
     }
   }
