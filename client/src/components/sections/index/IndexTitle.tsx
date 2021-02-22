@@ -49,7 +49,7 @@ class IndexTitle extends Component<Props> {
     const { classes } = this.props;
     const { selectedTheme } = this.context as GlobalContext;
 
-    const logoTheme = (selectedTheme == "light") ? "dark" : "light";
+    const logoTheme = (selectedTheme === "light") ? "dark" : "light";
     const logo = `/images/banner_${logoTheme}.png`;
 
     return (

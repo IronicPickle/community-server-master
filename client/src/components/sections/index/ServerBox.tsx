@@ -1,5 +1,5 @@
 import React, { Component, MouseEvent } from "react";
-import { withStyles, Theme, Grid, Typography, Toolbar, Divider, IconButton, Tooltip, Card, CardContent, Hidden } from "@material-ui/core";
+import { withStyles, Theme, Grid, Typography, Toolbar, Divider, IconButton, Tooltip, Card, CardContent } from "@material-ui/core";
 import { ClassNameMap } from "@material-ui/core/styles/withStyles";
 import HTTPServers, { DBServer, QueryStatusData, serverTypes } from "../../../http_utils/HTTPServers";
 import { globalContext, GlobalContext } from "../../../utils/contexts";

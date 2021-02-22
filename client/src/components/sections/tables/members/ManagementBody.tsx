@@ -1,4 +1,4 @@
-import { Theme, TableRow, TableCell, withStyles, TableBody, Checkbox, IconButton, Tooltip, Avatar, Grid } from "@material-ui/core";
+import { Theme, TableRow, TableCell, withStyles, TableBody, IconButton, Tooltip, Avatar, Grid } from "@material-ui/core";
 import { Component } from "react";
 import React from "react";
 import FileCopyIcon from "@material-ui/icons/FileCopy";
