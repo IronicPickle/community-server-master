@@ -64,8 +64,8 @@ export default (httpInstance: http.Server) => {
     let snipStart: number = 0;
     let snipLimit: number = 0;
 
-    const whitelisted = [ "discordName", "joinDate" ];
-    const strings = [ "discordName" ];
+    const whitelisted = [ "discordId", "discordName", "joinDate" ];
+    const strings = [ "discordId", "discordName" ];
 
     const searchKey = query.searchKey;
     const searchQuery = query.searchQuery;
