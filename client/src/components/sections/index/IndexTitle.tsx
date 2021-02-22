@@ -24,7 +24,7 @@ const styles = (theme: Theme) => ({
   socialContainer: {
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: theme.palette.primary.main
+      backgroundColor: theme.palette.primary.dark
     },
     minWidth: "100%"
   },

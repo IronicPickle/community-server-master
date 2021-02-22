@@ -21,6 +21,7 @@ export const lightTheme: Theme = createMuiTheme({
     },
     primary: {
       main: "rgba(235,235,235,1)",
+      dark: "rgba(235,235,235,0.9)",
       contrastText: "rgba(16,19,33,1)"
     },
     secondary: {
@@ -30,11 +31,11 @@ export const lightTheme: Theme = createMuiTheme({
     divider: "rgba(16,19,33,1)",
     action: {
       active: "rgba(31,29,8,0.9)",
-      hover: "rgba(31,29,8,0.5)",
-      selected: "rgba(31,29,8,0.5)",
+      hover: "rgba(31,29,8,0.25)",
+      selected: "rgba(31,29,8,0.25)",
       disabled: "rgba(31,29,8,0.55)",
-      disabledBackground: "rgba(31,29,83,0.55)",
-      focus: "rgba(31,29,8,0.5)"
+      disabledBackground: "rgba(31,29,8,0.55)",
+      focus: "rgba(31,29,8,0.25)"
     },
     background: {
       paper: "rgba(235,235,235,1)",
@@ -42,7 +43,7 @@ export const lightTheme: Theme = createMuiTheme({
     },
     text: {
       primary: "rgba(31,29,8,1)",
-      secondary: "rgba(148,174,63,1)"
+      secondary: "rgba(16,19,33,1)"
     }
   }
 }, shared);
