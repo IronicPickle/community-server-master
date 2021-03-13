@@ -3,9 +3,10 @@ import mongoose from "mongoose";
 export const serverTypes: { type: ServerType, name: string }[] = [
   { type: "minecraft", name: "Minecraft" },
   { type: "arma3", name: "Arma III" },
+  { type: "valheim", name: "Valheim" },
 ]
 
-export type ServerType = "minecraft" | "arma3";
+export type ServerType = "minecraft" | "arma3" | "valheim";
 
 export interface Server extends mongoose.Document {
   [key: string]: any;

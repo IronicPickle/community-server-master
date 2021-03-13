@@ -12,7 +12,6 @@ import HTTPServers from "../http_utils/HTTPServers";
 import ServerPosts, { ServerPost } from "../models/ServerPost";
 import HTTPNewsPosts from "../http_utils/HTTPNewsPost";
 import Gamedig from "gamedig";
-import { StringifyOptions } from "querystring";
 
 type NewsPostExtended = NewsPost & { author?: Member }
 
